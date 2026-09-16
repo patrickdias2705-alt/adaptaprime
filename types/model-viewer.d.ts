@@ -12,6 +12,9 @@ type ModelViewerAttributes = React.DetailedHTMLProps<
   "environment-image"?: string;
   "camera-controls"?: boolean;
   "touch-action"?: string;
+  "disable-pan"?: boolean;
+  "orbit-sensitivity"?: string;
+  "zoom-sensitivity"?: string;
   "auto-rotate"?: boolean;
   "auto-rotate-delay"?: string;
   "rotation-per-second"?: string;

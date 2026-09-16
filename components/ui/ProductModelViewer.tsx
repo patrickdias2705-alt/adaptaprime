@@ -38,6 +38,9 @@ export function ProductModelViewer({
   const [autoRotate, setAutoRotate] = useState(false);
   const [fullscreenAvailable, setFullscreenAvailable] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fallbackExpanded, setFallbackExpanded] = useState(false);
+  const [touchAction, setTouchAction] = useState<"pan-y" | "none">("pan-y");
+  const [isInteracting, setIsInteracting] = useState(false);
 
   useEffect(() => {
     const initialStateFrame = window.requestAnimationFrame(() => {
@@ -55,6 +58,31 @@ export function ProductModelViewer({
       document.removeEventListener("fullscreenchange", handleFullscreen);
     };
   }, []);
+
+  useEffect(() => {
+    const coarsePointer = window.matchMedia("(hover: none) and (pointer: coarse)");
+    const syncTouchAction = () => setTouchAction(coarsePointer.matches ? "none" : "pan-y");
+
+    syncTouchAction();
+    coarsePointer.addEventListener("change", syncTouchAction);
+    return () => coarsePointer.removeEventListener("change", syncTouchAction);
+  }, []);
+
+  useEffect(() => {
+    if (!fallbackExpanded) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFallbackExpanded(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [fallbackExpanded]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -136,15 +164,26 @@ export function ProductModelViewer({
       const nextProgress = (event as ModelProgressEvent).detail?.totalProgress;
       if (typeof nextProgress === "number") setProgress(nextProgress);
     };
+    const handlePointerDown = () => {
+      setIsInteracting(true);
+      setAutoRotate(false);
+    };
+    const handlePointerEnd = () => setIsInteracting(false);
 
     viewer.addEventListener("load", handleLoad);
     viewer.addEventListener("error", handleError);
     viewer.addEventListener("progress", handleProgress);
+    viewer.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointerup", handlePointerEnd);
+    window.addEventListener("pointercancel", handlePointerEnd);
 
     return () => {
       viewer.removeEventListener("load", handleLoad);
       viewer.removeEventListener("error", handleError);
       viewer.removeEventListener("progress", handleProgress);
+      viewer.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerEnd);
+      window.removeEventListener("pointercancel", handlePointerEnd);
     };
   }, [src, runtimeReady, shouldLoad]);
 
@@ -157,20 +196,34 @@ export function ProductModelViewer({
   }
 
   async function toggleFullscreen() {
+    if (fallbackExpanded) {
+      setFallbackExpanded(false);
+      return;
+    }
+
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await frameRef.current?.requestFullscreen();
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (fullscreenAvailable && frameRef.current?.requestFullscreen) {
+        await frameRef.current.requestFullscreen();
+      } else {
+        setFallbackExpanded(true);
+      }
     } catch {
       setFullscreenAvailable(false);
+      setFallbackExpanded(true);
     }
   }
 
   const progressLabel = Math.round(progress * 100);
+  const expanded = isFullscreen || fallbackExpanded;
+  const touchOptimized = touchAction === "none";
 
   return (
     <div
       ref={frameRef}
-      className={`product-model-viewer product-model-viewer--${variant}`}
+      className={`product-model-viewer product-model-viewer--${variant}${isInteracting ? " is-interacting" : ""}${fallbackExpanded ? " is-expanded" : ""}`}
+      data-touch-optimized={touchOptimized}
     >
       <div className="product-model-viewer__chrome" aria-hidden="true">
         <span>Visualização 3D</span>
@@ -185,7 +238,10 @@ export function ProductModelViewer({
         loading="eager"
         reveal="auto"
         camera-controls
-        touch-action="pan-y"
+        touch-action={touchAction}
+        disable-pan
+        orbit-sensitivity="1.18"
+        zoom-sensitivity="1.05"
         auto-rotate={autoRotate && inViewport}
         auto-rotate-delay="1200"
         rotation-per-second="14deg"
@@ -219,7 +275,12 @@ export function ProductModelViewer({
       ) : null}
 
       <div className={`product-model-viewer__hud${loaded ? " is-visible" : ""}`}>
-        <p><span aria-hidden="true">↔</span> Arraste para girar <i aria-hidden="true" /> Pinça ou scroll para aproximar</p>
+        <p>
+          <span aria-hidden="true">↔</span>
+          {touchOptimized ? "Arraste livremente para girar" : "Arraste para girar"}
+          <i aria-hidden="true" />
+          {touchOptimized ? "Pinça para aproximar" : "Pinça ou scroll para aproximar"}
+        </p>
         <div className="product-model-viewer__controls" aria-label="Controles do modelo 3D">
           <button type="button" onClick={() => setAutoRotate((current) => !current)} aria-pressed={autoRotate}>
             <span aria-hidden="true">{autoRotate ? "Ⅱ" : "↻"}</span>
@@ -229,12 +290,10 @@ export function ProductModelViewer({
             <span aria-hidden="true">⌖</span>
             Recentrar
           </button>
-          {fullscreenAvailable ? (
-            <button type="button" onClick={toggleFullscreen} aria-pressed={isFullscreen}>
-              <span aria-hidden="true">⛶</span>
-              {isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
-            </button>
-          ) : null}
+          <button type="button" onClick={toggleFullscreen} aria-pressed={expanded}>
+            <span aria-hidden="true">⛶</span>
+            {expanded ? "Fechar ampliação" : "Ampliar 3D"}
+          </button>
         </div>
       </div>
     </div>
