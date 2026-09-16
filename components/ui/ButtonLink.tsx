@@ -7,6 +7,9 @@ type ButtonLinkProps = {
   variant?: "primary" | "secondary" | "text" | "light";
   className?: string;
   ariaLabel?: string;
+  leadSource?: string;
+  leadStage?: "discovery" | "category" | "product" | "service";
+  leadInterest?: string;
 };
 
 export function ButtonLink({
@@ -15,6 +18,9 @@ export function ButtonLink({
   variant = "primary",
   className = "",
   ariaLabel,
+  leadSource,
+  leadStage,
+  leadInterest,
 }: ButtonLinkProps) {
   const external = href.startsWith("http");
 
@@ -25,6 +31,10 @@ export function ButtonLink({
       aria-label={ariaLabel}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
+      data-whatsapp-cta={leadSource ? "true" : undefined}
+      data-lead-source={leadSource}
+      data-lead-stage={leadStage}
+      data-lead-interest={leadInterest}
     >
       <span>{children}</span>
       <span className="button-link__arrow" aria-hidden="true">
@@ -33,4 +43,3 @@ export function ButtonLink({
     </Link>
   );
 }
-

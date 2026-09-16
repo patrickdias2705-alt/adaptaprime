@@ -1,37 +1,82 @@
 import Link from "next/link";
 import { Reveal } from "@/components/motion/Reveal";
-import { SectionIntro } from "@/components/ui/SectionIntro";
+import { Home3DShowcase } from "@/components/sections/Home3DShowcase";
+import { BrandLogo3D } from "@/components/ui/BrandLogo3D";
+import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { categories } from "@/lib/categories";
 
 export function CategoriesSection() {
   return (
-    <section id="solucoes" className="section section--ice categories-section">
-      <div className="shell">
-        <Reveal>
-          <SectionIntro
-            eyebrow="Soluções para sua prática"
-            tone="light"
-            title={<>Explore nossas<br />principais soluções.</>}
-            body={<p>Categorias organizadas para facilitar uma conversa técnica mais objetiva.</p>}
+    <section
+      id="solucoes"
+      className="section section--ice categories-section"
+      aria-labelledby="solutions-title"
+    >
+      <Reveal>
+        <ImageStreamHero
+          images={[]}
+          cards={10}
+          speed={24}
+          axis={55}
+          path={{
+            cardWidth: 26,
+            cardHeight: 10,
+            cardRadius: 0.25,
+            birthHeight: 1.8,
+            exitHeight: 22,
+            railBirth: -10,
+            railExit: 46,
+            fan: 3.3,
+            turnBirth: 4,
+            turnExit: 24,
+          }}
+          className="solutions-logo-stream"
+        >
+          <BrandLogo3D
+            className="solutions-logo-stream__brand-3d"
+            loading="eager"
           />
-        </Reveal>
+          <div className="solutions-logo-stream__content">
+            <div>
+              <p className="eyebrow eyebrow--light">
+                Soluções para sua prática
+              </p>
+              <h2 id="solutions-title">
+                Explore nossas
+                <br />
+                <span>principais soluções.</span>
+              </h2>
+            </div>
+            <p>
+              Categorias organizadas para facilitar uma conversa técnica
+              mais objetiva.
+            </p>
+          </div>
+        </ImageStreamHero>
+      </Reveal>
+
+      <div className="shell categories-section__content">
+        <Home3DShowcase />
 
         <div className="categories-grid">
           {categories.map((category, index) => (
             <Reveal key={category.slug} delay={index * 0.05}>
               <Link
-                href={`/produtos?categoria=${category.slug}`}
-                className={`category-panel category-panel--${category.accent}`}
+                href={`/solucoes/${category.slug}`}
+                className="category-panel"
+                aria-label={`Ver produtos de ${category.name}`}
               >
-                <span className="category-panel__visual" aria-hidden="true">
-                  <span className="category-panel__code">{category.code}</span>
-                  <span className="category-panel__measure" />
-                </span>
-                <span className="category-panel__content">
-                  <strong>{category.name}</strong>
-                  <span>{category.description}</span>
-                </span>
-                <span className="category-panel__arrow" aria-hidden="true">↗</span>
+                {/* The supplied artwork already contains the complete card copy. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={category.image}
+                  alt={`Soluções odontológicas em ${category.name}`}
+                  width="1448"
+                  height="1086"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
               </Link>
             </Reveal>
           ))}
@@ -40,4 +85,3 @@ export function CategoriesSection() {
     </section>
   );
 }
-

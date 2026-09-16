@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion/Reveal";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { PageHero } from "@/components/ui/PageHero";
+import { StructuredData } from "@/components/ui/StructuredData";
 import { categories } from "@/lib/categories";
 import { createPageMetadata } from "@/lib/metadata";
+import { absoluteUrl, siteConfig } from "@/lib/site-config";
 
 export const metadata = createPageMetadata(
   "Soluções Odontológicas",
@@ -18,8 +20,52 @@ const journey = [
 ];
 
 export default function SolutionsPage() {
+  const structuredData = siteConfig.siteUrl
+    ? [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": `${absoluteUrl("/solucoes")}#collection`,
+          url: absoluteUrl("/solucoes"),
+          name: "Soluções Odontológicas Adapta Prime",
+          description:
+            "Soluções para Implantodontia, Endodontia, componentes protéticos, kits e instrumentais odontológicos.",
+          inLanguage: siteConfig.language,
+          isPartOf: { "@id": `${siteConfig.siteUrl}/#website` },
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: categories.map((category, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: category.name,
+              url: absoluteUrl(`/solucoes/${category.slug}`),
+            })),
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Início",
+              item: siteConfig.siteUrl,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Soluções",
+              item: absoluteUrl("/solucoes"),
+            },
+          ],
+        },
+      ]
+    : null;
+
   return (
     <>
+      {structuredData ? <StructuredData data={structuredData} /> : null}
       <PageHero
         eyebrow="Soluções"
         title={<>Critério para cada<br />escolha técnica.</>}
@@ -35,7 +81,7 @@ export default function SolutionsPage() {
           <div className="solutions-ledger__list">
             {categories.map((category) => (
               <Reveal key={category.slug}>
-                <Link href={`/produtos?categoria=${category.slug}`}>
+                <Link href={`/solucoes/${category.slug}`}>
                   <span>{category.code}</span>
                   <strong>{category.name}</strong>
                   <p>{category.description}</p>
@@ -70,4 +116,3 @@ export default function SolutionsPage() {
     </>
   );
 }
-

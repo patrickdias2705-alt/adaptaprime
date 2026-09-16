@@ -5,6 +5,12 @@ import { BrandLogo } from "./BrandLogo";
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const footerOrigin = "Rodapé > Atendimento";
+  const footerWhatsappHref = getWhatsAppUrl({
+    origin: footerOrigin,
+    request: "Quero iniciar uma conversa com a equipe da Adapta Prime.",
+  });
+  const footerWhatsappExternal = footerWhatsappHref.startsWith("http");
 
   return (
     <footer className="site-footer">
@@ -27,7 +33,7 @@ export function Footer() {
         <div className="footer-column">
           <p className="footer-label">Soluções</p>
           {categories.slice(0, 4).map((category) => (
-            <Link key={category.slug} href={`/produtos?categoria=${category.slug}`}>
+            <Link key={category.slug} href={`/solucoes/${category.slug}`}>
               {category.name}
             </Link>
           ))}
@@ -35,8 +41,16 @@ export function Footer() {
 
         <div className="footer-column">
           <p className="footer-label">Atendimento</p>
-          <Link href="/contato">Contato comercial</Link>
-          {siteConfig.whatsapp ? <Link href={getWhatsAppUrl()}>WhatsApp</Link> : null}
+          <Link
+            href={footerWhatsappHref}
+            target={footerWhatsappExternal ? "_blank" : undefined}
+            rel={footerWhatsappExternal ? "noreferrer" : undefined}
+            data-whatsapp-cta="true"
+            data-lead-stage="discovery"
+            data-lead-source={footerOrigin}
+          >
+            Atendimento comercial
+          </Link>
           {siteConfig.email ? <a href={`mailto:${siteConfig.email}`}>E-mail</a> : null}
           {siteConfig.instagram ? <a href={siteConfig.instagram} target="_blank" rel="noreferrer">Instagram</a> : null}
         </div>
@@ -52,4 +66,3 @@ export function Footer() {
     </footer>
   );
 }
-

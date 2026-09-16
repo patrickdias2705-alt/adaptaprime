@@ -1,17 +1,31 @@
+"use client";
+
 import Link from "next/link";
-import { getWhatsAppUrl, siteConfig } from "@/lib/site-config";
+import { usePathname } from "next/navigation";
+import { getLeadPageLabel, getWhatsAppUrl } from "@/lib/site-config";
 
 export function FloatingContact() {
+  const pathname = usePathname();
+  const origin = `${getLeadPageLabel(pathname)} > Botão flutuante`;
+  const href = getWhatsAppUrl({ origin, request: "Quero falar com um especialista da Adapta Prime." });
+  const external = href.startsWith("http");
+
   return (
     <Link
       className="floating-contact"
-      href={getWhatsAppUrl("Olá, quero falar com um especialista da Adapta Prime.")}
-      aria-label={siteConfig.whatsapp ? "Falar com especialista pelo WhatsApp" : "Ir para a página de contato"}
+      href={href}
+      aria-label="Falar com especialista pelo WhatsApp"
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      data-whatsapp-cta="true"
+      data-lead-stage="discovery"
+      data-lead-source={origin}
     >
-      <span className="floating-contact__signal" aria-hidden="true" />
-      <span className="floating-contact__label">Falar com especialista</span>
-      <span aria-hidden="true">↗</span>
+      <span className="floating-contact__icon" aria-hidden="true">
+        {/* This is the official WhatsApp brand silhouette from Simple Icons. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/whatsapp.svg" alt="" width="25" height="25" />
+      </span>
     </Link>
   );
 }
-

@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Brand assets are already web-sized and are served directly so local and
-  // Cloudflare previews do not depend on an image-binding being present.
+  // The visual assets are already exported in web-ready formats. Keeping them
+  // direct avoids an extra optimization hop for the large editorial banners.
   images: {
     unoptimized: true,
   },

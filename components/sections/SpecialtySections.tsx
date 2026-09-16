@@ -1,19 +1,22 @@
 import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { LogisticsVideo } from "@/components/ui/LogisticsVideo";
+import { getWhatsAppUrl } from "@/lib/site-config";
 
 export function EndodonticsSection() {
   return (
     <section className="section section--ice specialty specialty--endo" aria-labelledby="endo-title">
       <div className="shell specialty__grid">
         <Reveal className="endo-visual" direction="right">
-          <div className="endo-visual__type" aria-hidden="true">ENDO</div>
-          <div className="endo-visual__calibration" aria-hidden="true">
-            <span>Instrumentação</span>
-            <i />
-            <span>Rotina</span>
-          </div>
-          <p>Instrumentação endodôntica</p>
-          <small>Imagem oficial será incorporada ao catálogo quando disponibilizada.</small>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/sections/endodontia-limas.webp"
+            alt="Conjunto de limas endodônticas Adapta Prime"
+            width="1448"
+            height="1086"
+            loading="lazy"
+            decoding="async"
+          />
         </Reveal>
 
         <Reveal className="specialty__copy" direction="left">
@@ -56,7 +59,20 @@ export function ComponentsSection() {
 
         <Reveal className="components-visual" direction="left">
           <div className="components-visual__halo" aria-hidden="true" />
-          <p className="components-visual__code" aria-hidden="true">CM<br /><span>HE</span></p>
+          <div
+            className="components-visual__connections"
+            role="list"
+            aria-label="Conexões disponíveis: CM, HE, GM e Straumann"
+          >
+            <span className="components-visual__connection components-visual__connection--cm" role="listitem">CM</span>
+            <span className="components-visual__connection components-visual__connection--he" role="listitem">HE</span>
+            <span className="components-visual__connection components-visual__connection--gm" role="listitem">GM</span>
+            <span className="components-visual__connection components-visual__connection--straumann" role="listitem">Straumann</span>
+            <span className="components-visual__core" aria-hidden="true">
+              <strong>04</strong>
+              <small>conexões</small>
+            </span>
+          </div>
           <div className="components-visual__ledger">
             <span>Conexão</span>
             <span>Objetivo protético</span>
@@ -74,10 +90,17 @@ export function ClinicsSection() {
     <section className="section section--ice clinics-section" aria-labelledby="clinics-title">
       <div className="shell clinics-section__grid">
         <Reveal className="clinic-environment" direction="right">
-          <div className="clinic-environment__frame" aria-hidden="true">
-            <strong>B2B</strong>
-            <span className="clinic-environment__context">Clínicas · Profissionais</span>
-            <span className="clinic-environment__line" />
+          <div className="clinic-environment__frame">
+            {/* Native image keeps this below-the-fold editorial visual lightweight. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/sections/clinica-adapta-prime.webp"
+              alt="Profissional de odontologia organizando componentes em ambiente clínico"
+              width="1448"
+              height="1086"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <p>Ambiente de atuação dos clientes atendidos pela Adapta Prime.</p>
         </Reveal>
@@ -94,7 +117,19 @@ export function ClinicsSection() {
             <span>Compatibilidade</span>
             <span>Atendimento próximo</span>
           </div>
-          <ButtonLink href="/contato" variant="text">Conversar com a equipe</ButtonLink>
+          <ButtonLink
+            href={getWhatsAppUrl({
+              origin: "Início > Atendimento para clínicas",
+              interest: "Atendimento para clínica",
+              request: "Quero conhecer as opções para a rotina da minha clínica.",
+            })}
+            variant="text"
+            leadSource="Início > Atendimento para clínicas"
+            leadStage="service"
+            leadInterest="Atendimento para clínica"
+          >
+            Conversar com a equipe
+          </ButtonLink>
         </Reveal>
       </div>
     </section>
@@ -116,15 +151,24 @@ export function LogisticsSection() {
             Uma operação preparada para atender clínicas em diferentes regiões com
             organização e previsibilidade.
           </p>
-          <ButtonLink href="/contato" variant="secondary">Consultar sua região</ButtonLink>
+          <ButtonLink
+            href={getWhatsAppUrl({
+              origin: "Início > Logística nacional",
+              interest: "Entrega para minha região",
+              request: "Quero confirmar atendimento e entrega para minha cidade.",
+            })}
+            variant="secondary"
+            leadSource="Início > Logística nacional"
+            leadStage="service"
+            leadInterest="Entrega para minha região"
+          >
+            Consultar minha região
+          </ButtonLink>
         </Reveal>
 
         <Reveal className="logistics-network" direction="left">
-          <div className="logistics-network__field" aria-hidden="true">
-            <span className="route route--one" />
-            <span className="route route--two" />
-            <span className="route route--three" />
-            <strong>BR</strong>
+          <div className="logistics-network__field">
+            <LogisticsVideo />
           </div>
           <div className="logistics-network__regions">
             {regions.map((region) => <span key={region}>{region}</span>)}

@@ -1,14 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { getWhatsAppUrl, navigation } from "@/lib/site-config";
+import { createPortal } from "react-dom";
+import { getLeadPageLabel, getWhatsAppUrl, navigation } from "@/lib/site-config";
 import { BrandLogo } from "./BrandLogo";
 
 export function Header() {
   const pathname = usePathname();
+  const headerOrigin = `${getLeadPageLabel(pathname)} > Cabeçalho`;
+  const headerWhatsappHref = getWhatsAppUrl({
+    origin: headerOrigin,
+    request: "Quero falar com um especialista da Adapta Prime.",
+  });
+  const headerWhatsappExternal = headerWhatsappHref.startsWith("http");
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,6 +58,16 @@ export function Header() {
   }, [menuOpen]);
 
   useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1181px)");
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) closeMenu({ restoreFocus: false });
+    };
+
+    desktopQuery.addEventListener("change", closeOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  useEffect(() => {
     if (!menuOpen) return;
 
     const focusFrame = window.requestAnimationFrame(() => {
@@ -57,14 +75,13 @@ export function Header() {
     });
 
     function getFocusableElements() {
-      const header = menuRef.current?.closest("header");
-      if (!header) return [];
+      const menuLinks = menuRef.current
+        ? Array.from(menuRef.current.querySelectorAll<HTMLElement>("a[href]"))
+        : [];
 
-      return Array.from(
-        header.querySelectorAll<HTMLElement>(
-          ".menu-toggle, #mobile-navigation a[href]",
-        ),
-      ).filter((element) => element.offsetParent !== null);
+      return [menuButtonRef.current, ...menuLinks].filter(
+        (element): element is HTMLElement => Boolean(element && element.offsetParent !== null),
+      );
     }
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -108,6 +125,23 @@ export function Header() {
       <div className="site-header__inner shell">
         <BrandLogo priority onNavigate={() => closeMenu({ restoreFocus: false })} />
 
+        <Link
+          href="/"
+          className="mobile-brand-mark"
+          aria-label="Adapta Prime — página inicial"
+          onClick={() => closeMenu({ restoreFocus: false })}
+        >
+          <Image
+            src="/brand/adapta-prime-symbol-mobile.png"
+            alt=""
+            width={500}
+            height={500}
+            sizes="56px"
+            priority
+            unoptimized
+          />
+        </Link>
+
         <nav className="desktop-nav" aria-label="Navegação principal">
           {navigation.map((item) => {
             const active = isCurrentPage(item.href);
@@ -124,7 +158,15 @@ export function Header() {
           })}
         </nav>
 
-        <Link className="header-cta" href={getWhatsAppUrl("Olá, quero falar com um especialista da Adapta Prime.")}>
+        <Link
+          className="header-cta"
+          href={headerWhatsappHref}
+          target={headerWhatsappExternal ? "_blank" : undefined}
+          rel={headerWhatsappExternal ? "noreferrer" : undefined}
+          data-whatsapp-cta="true"
+          data-lead-stage="discovery"
+          data-lead-source={headerOrigin}
+        >
           Falar com especialista
           <span aria-hidden="true">↗</span>
         </Link>
@@ -143,39 +185,107 @@ export function Header() {
         </button>
       </div>
 
-      <AnimatePresence>
-        {menuOpen ? (
-          <motion.div
-            ref={menuRef}
-            id="mobile-navigation"
-            className="mobile-menu"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: reduceMotion ? 0.01 : 0.24 }}
-          >
-            <nav className="shell" aria-label="Navegação mobile">
-              {navigation.map((item) => {
-                const active = isCurrentPage(item.href);
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => closeMenu({ restoreFocus: false })}
+      {typeof document !== "undefined"
+        ? createPortal(
+            <AnimatePresence>
+              {menuOpen ? (
+                <motion.div
+                  ref={menuRef}
+                  id="mobile-navigation"
+                  className="mobile-menu"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Menu principal"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0.01 : 0.2 }}
+                >
+                  <motion.button
+                    type="button"
+                    className="mobile-menu__scrim"
+                    aria-label="Fechar menu"
+                    tabIndex={-1}
+                    onClick={() => closeMenu()}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reduceMotion ? 0.01 : 0.2 }}
+                  />
+
+                  <motion.aside
+                    className="mobile-menu__panel"
+                    initial={{ x: "105%", opacity: 0.72, scaleX: 0.94 }}
+                    animate={{ x: 0, opacity: 1, scaleX: 1 }}
+                    exit={{ x: "105%", opacity: 0, scaleX: 0.97 }}
+                    transition={reduceMotion
+                      ? { duration: 0.01 }
+                      : { type: "spring", stiffness: 310, damping: 34, mass: 0.86 }}
                   >
-                    <span>{item.label}</span>
-                    <span aria-hidden="true">↗</span>
-                  </Link>
-                );
-              })}
-              <Link className="mobile-menu__cta" href={getWhatsAppUrl("Olá, quero falar com um especialista da Adapta Prime.")} onClick={() => closeMenu({ restoreFocus: false })}>
-                Falar com especialista
-              </Link>
-            </nav>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+                    <div className="mobile-menu__liquid" aria-hidden="true" />
+                    <div className="mobile-menu__heading">
+                      <Image
+                        src="/brand/adapta-prime-symbol-mobile.png"
+                        alt=""
+                        width={500}
+                        height={500}
+                        sizes="42px"
+                        unoptimized
+                      />
+                      <div>
+                        <strong>Adapta Prime</strong>
+                        <span>Navegação</span>
+                      </div>
+                    </div>
+
+                    <nav className="mobile-menu__nav" aria-label="Navegação mobile">
+                      {navigation.map((item, index) => {
+                        const active = isCurrentPage(item.href);
+                        return (
+                          <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{
+                              delay: reduceMotion ? 0 : 0.08 + index * 0.045,
+                              duration: reduceMotion ? 0.01 : 0.24,
+                              ease: [0.22, 1, 0.36, 1],
+                            }}
+                          >
+                            <Link
+                              href={item.href}
+                              className={active ? "is-active" : ""}
+                              aria-current={active ? "page" : undefined}
+                              onClick={() => closeMenu({ restoreFocus: false })}
+                            >
+                              <span>{item.label}</span>
+                              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                            </Link>
+                          </motion.div>
+                        );
+                      })}
+                    </nav>
+
+                    <Link
+                      className="mobile-menu__cta"
+                      href={headerWhatsappHref}
+                      target={headerWhatsappExternal ? "_blank" : undefined}
+                      rel={headerWhatsappExternal ? "noreferrer" : undefined}
+                      data-whatsapp-cta="true"
+                      data-lead-stage="discovery"
+                      data-lead-source={`${headerOrigin} > Menu mobile`}
+                      onClick={() => closeMenu({ restoreFocus: false })}
+                    >
+                      Falar pelo WhatsApp
+                      <span aria-hidden="true">↗</span>
+                    </Link>
+                  </motion.aside>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }

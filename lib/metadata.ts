@@ -13,7 +13,31 @@ export function createPageMetadata(
   return {
     title,
     description,
-    alternates: canonical ? { canonical } : undefined,
+    applicationName: siteConfig.name,
+    authors: [{ name: siteConfig.name }],
+    creator: siteConfig.name,
+    publisher: siteConfig.name,
+    category: "Odontologia",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+    alternates: canonical
+      ? {
+          canonical,
+          languages: {
+            "pt-BR": canonical,
+            "x-default": canonical,
+          },
+        }
+      : undefined,
     openGraph: {
       title: `${title} | Adapta Prime`,
       description,
@@ -22,14 +46,14 @@ export function createPageMetadata(
       url: canonical,
       siteName: "Adapta Prime",
       images: siteConfig.siteUrl
-        ? [{ url: absoluteUrl("/og.png"), width: 1729, height: 910, alt: "Adapta Prime — Precisão para a rotina clínica" }]
+        ? [{ url: absoluteUrl(siteConfig.ogImage), width: 1729, height: 910, alt: "Adapta Prime — Precisão para a rotina clínica" }]
         : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | Adapta Prime`,
       description,
-      images: siteConfig.siteUrl ? [absoluteUrl("/og.png")] : undefined,
+      images: siteConfig.siteUrl ? [absoluteUrl(siteConfig.ogImage)] : undefined,
     },
   };
 }

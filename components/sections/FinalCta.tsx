@@ -1,13 +1,19 @@
+"use client";
+
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Reveal } from "@/components/motion/Reveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { getWhatsAppUrl } from "@/lib/site-config";
+import { getLeadPageLabel, getWhatsAppUrl } from "@/lib/site-config";
 
 export function FinalCta() {
+  const pathname = usePathname();
+  const origin = `${getLeadPageLabel(pathname)} > Chamada final`;
+
   return (
     <section className="final-cta" aria-labelledby="final-cta-title">
       <div className="final-cta__watermark" aria-hidden="true">
-        <Image src="/brand/adapta-prime-logo.png" alt="" width={2172} height={724} sizes="80vw" unoptimized />
+        <Image src="/brand/adapta-prime-logo.webp" alt="" width={700} height={233} sizes="80vw" unoptimized />
       </div>
       <div className="shell final-cta__inner">
         <Reveal>
@@ -17,10 +23,19 @@ export function FinalCta() {
           </h2>
           <p>Fale com nossa equipe e encontre a solução adequada para sua rotina.</p>
           <div className="final-cta__actions">
-            <ButtonLink href={getWhatsAppUrl("Olá, quero orientação sobre as soluções da Adapta Prime.")}>
+            <ButtonLink
+              href={getWhatsAppUrl({
+                origin,
+                interest: "Orientação comercial",
+                request: "Quero explicar o que procuro e receber orientação da equipe.",
+              })}
+              leadSource={origin}
+              leadStage="discovery"
+              leadInterest="Orientação comercial"
+            >
               Falar com especialista
             </ButtonLink>
-            <ButtonLink href="/contato" variant="secondary">Entrar em contato</ButtonLink>
+            <ButtonLink href="/produtos" variant="secondary">Escolher uma categoria</ButtonLink>
           </div>
         </Reveal>
       </div>
