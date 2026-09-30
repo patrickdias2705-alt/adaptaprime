@@ -75,7 +75,8 @@ test("server-renders the institutional home", async () => {
   assert.match(html, /Dúvidas frequentes/i);
   assert.match(html, /data-whatsapp-cta="true"/i);
   assert.match(html, /data-lead-stage="discovery"/i);
-  assert.match(html, /href="https:\/\/wa\.me\//i);
+  assert.match(html, /href="https:\/\/wa\.me\/5531992190003\?text=/i);
+  assert.match(html, /%5BContato%20via%20site%20Adapta%20Prime%5D/i);
   assert.match(html, /src="\/brand\/adapta-prime-symbol-mobile\.png"/i);
   assert.doesNotMatch(html, /_next\/image[^\"]*adapta-prime-symbol-mobile/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -85,7 +86,19 @@ test("server-renders the institutional home", async () => {
 test("redirects the legacy contact route straight to WhatsApp", async () => {
   const response = await render("/contato");
   assert.equal(response.status, 307);
-  assert.match(response.headers.get("location") ?? "", /^https:\/\/wa\.me\//i);
+  assert.match(
+    response.headers.get("location") ?? "",
+    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D/i,
+  );
+
+  const customMessageResponse = await render(
+    "/contato?mensagem=Gostaria%20de%20um%20or%C3%A7amento",
+  );
+  assert.equal(customMessageResponse.status, 307);
+  assert.match(
+    customMessageResponse.headers.get("location") ?? "",
+    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D%0AGostaria%20de%20um%20or%C3%A7amento$/i,
+  );
 });
 
 test("renders catalog and product detail routes", async () => {

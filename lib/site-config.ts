@@ -8,7 +8,12 @@ const vercelProductionUrl = (
   .trim()
   .replace(/\/+$/, "");
 
-const configuredWhatsApp = (process.env.NEXT_PUBLIC_WHATSAPP ?? "").trim();
+const DEFAULT_WHATSAPP = "5531992190003";
+const WHATSAPP_SITE_IDENTIFIER = "[Contato via site Adapta Prime]";
+
+const configuredWhatsApp = (
+  process.env.NEXT_PUBLIC_WHATSAPP ?? DEFAULT_WHATSAPP
+).trim() || DEFAULT_WHATSAPP;
 
 export const siteConfig = {
   name: "Adapta Prime",
@@ -51,6 +56,7 @@ export function buildWhatsAppMessage({
   request = "Quero conhecer as opções e receber orientação da equipe.",
 }: WhatsAppLeadContext) {
   return [
+    WHATSAPP_SITE_IDENTIFIER,
     "Olá! Vim pelo site da Adapta Prime.",
     interest ? `Interesse: ${interest}.` : null,
     request,
@@ -58,20 +64,30 @@ export function buildWhatsAppMessage({
   ].filter(Boolean).join("\n");
 }
 
+function identifyWhatsAppMessage(message: string) {
+  const trimmedMessage = message.trim();
+
+  if (trimmedMessage.startsWith(WHATSAPP_SITE_IDENTIFIER)) {
+    return trimmedMessage;
+  }
+
+  return [WHATSAPP_SITE_IDENTIFIER, trimmedMessage].filter(Boolean).join("\n");
+}
+
 export function getWhatsAppUrl(input?: string | WhatsAppLeadContext) {
   const number = siteConfig.whatsapp.replace(/\D/g, "");
   const message = typeof input === "string"
-    ? input
+    ? identifyWhatsAppMessage(input)
     : input
       ? buildWhatsAppMessage(input)
-      : undefined;
+      : identifyWhatsAppMessage(
+          "Olá! Quero falar com um especialista da Adapta Prime.",
+        );
 
   const text = message
     ? `?text=${encodeURIComponent(message)}`
     : "";
 
-  // Without a configured business number, WhatsApp opens its contact picker.
-  // This keeps every CTA direct and avoids sending the visitor through a form.
   return `https://wa.me/${number}${text}`;
 }
 
