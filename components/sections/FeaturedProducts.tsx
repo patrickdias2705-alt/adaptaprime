@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { ProductPhotoPair } from "@/components/catalog/ProductPhotoPair";
 import { useState } from "react";
 import { products } from "@/lib/products";
 import { getWhatsAppUrl } from "@/lib/site-config";
@@ -54,7 +55,7 @@ export function FeaturedProducts() {
               exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.995 }}
               transition={{ duration: reduceMotion ? 0.01 : 0.46, ease: [0.22, 1, 0.36, 1] }}
             >
-              {active.image ? (
+              {active.companionImage ? <ProductPhotoPair product={active} /> : active.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className="product-stage__image"

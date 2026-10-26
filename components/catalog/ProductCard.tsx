@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProductPhotoPair } from "@/components/catalog/ProductPhotoPair";
 import type { Product } from "@/lib/products";
 import { getWhatsAppUrl } from "@/lib/site-config";
 
@@ -22,7 +23,7 @@ export function ProductCard({ product, origin }: ProductCardProps) {
         className="catalog-card__visual"
         aria-label={`Conhecer ${product.name}`}
       >
-        {product.image ? (
+        {product.companionImage ? <ProductPhotoPair product={product} /> : product.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.image}
@@ -32,7 +33,9 @@ export function ProductCard({ product, origin }: ProductCardProps) {
             loading="lazy"
             decoding="async"
           />
-        ) : null}
+        ) : (
+          <div className="catalog-card__placeholder"><strong>{product.visualLabel ?? product.name}</strong><small>Consulte modelos e disponibilidade</small></div>
+        )}
         <span className="catalog-card__shade" aria-hidden="true" />
         <span className="catalog-card__category">{product.category}</span>
         {product.model3d ? <small className="catalog-card__3d">3D interativo</small> : null}

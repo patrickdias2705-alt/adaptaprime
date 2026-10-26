@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ProductPhotoPair } from "@/components/catalog/ProductPhotoPair";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ProductModelViewer } from "@/components/ui/ProductModelViewer";
@@ -97,11 +98,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 name={product.name}
                 variant={product.modelVariant}
               />
+            ) : product.companionImage ? (
+              <ProductPhotoPair product={product} />
             ) : product.image ? (
               <Image src={product.image} alt={product.name} fill sizes="(max-width: 900px) 100vw, 50vw" priority unoptimized />
             ) : (
               <div className="product-detail__typographic" aria-label={`Apresentação tipográfica de ${product.name}`}>
-                <span>{product.category}</span>
+                <span>{product.visualLabel ?? product.category}</span>
                 <i aria-hidden="true" />
                 <small>Imagem oficial não disponibilizada</small>
               </div>

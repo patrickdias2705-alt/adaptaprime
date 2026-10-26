@@ -18,6 +18,8 @@ export type Product = {
   categorySlug: string;
   description: string;
   image?: string;
+  companionImage?: string;
+  visualLabel?: string;
   model3d?: string;
   modelVariant?: "reto" | "angulado" | "limas";
   featured?: boolean;
@@ -56,11 +58,9 @@ export const products: Product[] = [
     slug: "mini-pilar-he",
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
-    image: "/products/featured/mini-pilar-he.webp",
-    model3d: "/models/mini-pilar-reto-fast.glb",
-    modelVariant: "reto",
+    image: "/products/featured/mini-pilar-he-reto.webp",
     description:
-      "Uma opção para rotinas protéticas em que a compatibilidade deve orientar a escolha.",
+      "Mini pilar reto para conexão hexágono externo (HE). A seleção considera a plataforma e a altura transmucosa.",
     technicalData: {
       summary: "Alturas organizadas por plataforma HE",
       groups: [
@@ -90,7 +90,7 @@ export const products: Product[] = [
     slug: "mini-pilar-angulado",
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
-    image: "/products/featured/mini-pilar-angulado.webp",
+    image: "/products/featured/mini-pilar-angulado-corrigido.webp",
     model3d: "/models/mini-pilar-angulado-fast.glb",
     modelVariant: "angulado",
     description:
@@ -134,10 +134,10 @@ export const products: Product[] = [
     slug: "implantes-cm-he",
     category: "Implantodontia",
     categorySlug: "implantodontia",
-    image: "/products/featured/implantes-cm-he.webp",
+    visualLabel: "Singular e Systhex",
     description:
-      "Implantes nas conexões CM e HE para seleção conforme o planejamento cirúrgico e o protocolo clínico.",
-    characteristics: ["Conexão CM", "Conexão HE", "Seleção orientada pelo planejamento"],
+      "Trabalhamos com implantes Singular e Systhex. Consulte nossa equipe para confirmar os modelos disponíveis nas conexões cone morse (CM) e hexágono externo (HE).",
+    characteristics: ["Marcas: Singular e Systhex", "Conexões CM e HE sob consulta", "Seleção orientada pelo planejamento"],
     applications: ["Planejamento implantodôntico", "Reabilitação sobre implantes"],
     featured: true,
   },
@@ -146,10 +146,11 @@ export const products: Product[] = [
     slug: "t-base-cm-11-5-parafuso-cm",
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
-    image: "/products/featured/t-base-cm-11-5.webp",
+    image: "/products/featured/t-base-cone-morse-11-5.png",
+    companionImage: "/products/featured/parafuso-t-base-cone-morse.png",
     description:
-      "Conjunto T-Base CM com angulação de 11,5° e parafuso CM para composições protéticas que exigem compatibilidade precisa.",
-    characteristics: ["Conexão CM", "Angulação de 11,5°", "Parafuso CM incluído"],
+      "T-Base para conexão cone morse (CM) 11,5° e respectivo parafuso. Consulte a equipe para confirmar plataforma, compatibilidade e disponibilidade.",
+    characteristics: ["Conexão cone morse (CM) 11,5°", "Parafuso para T-Base cone morse", "Compatibilidade sob consulta"],
     applications: ["Planejamento protético", "Reabilitação sobre implantes"],
     featured: true,
   },

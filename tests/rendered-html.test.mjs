@@ -114,9 +114,12 @@ test("renders catalog and product detail routes", async () => {
   assert.match(catalogHtml, /Falar sobre este produto/i);
   assert.match(catalogHtml, /\/products\/featured\/mini-pilar-reto\.webp/i);
   assert.match(catalogHtml, /Implantes CM e HE/i);
-  assert.match(catalogHtml, /\/products\/featured\/implantes-cm-he\.webp/i);
+  assert.match(catalogHtml, /Singular e Systhex/i);
+  assert.doesNotMatch(catalogHtml, /\/products\/featured\/implantes-cm-he\.webp/i);
   assert.match(catalogHtml, /T-Base CM 11,5[^<]{0,3}\+ Parafuso CM/i);
-  assert.match(catalogHtml, /\/products\/featured\/t-base-cm-11-5\.webp/i);
+  assert.match(catalogHtml, /\/products\/featured\/t-base-cone-morse-11-5\.png/i);
+  assert.match(catalogHtml, /\/products\/featured\/parafuso-t-base-cone-morse\.png/i);
+  assert.doesNotMatch(catalogHtml, /\/products\/featured\/t-base-cm-11-5\.webp/i);
   assert.doesNotMatch(catalogHtml, /R\$\s*\d/i);
 
   const product = await render("/produtos/mini-pilar-cm");
@@ -133,6 +136,8 @@ test("renders catalog and product detail routes", async () => {
   const heProduct = await render("/produtos/mini-pilar-he");
   assert.equal(heProduct.status, 200);
   const heHtml = await heProduct.text();
+  assert.match(heHtml, /\/products\/featured\/mini-pilar-he-reto\.webp/i);
+  assert.doesNotMatch(heHtml, /\/models\/mini-pilar-reto-fast\.glb/i);
   assert.match(heHtml, /HE Ø 3,3/i);
   assert.match(heHtml, /HE SF Ø 4,1/i);
   assert.match(heHtml, /HE SF Ø 5,0/i);
@@ -142,6 +147,13 @@ test("renders catalog and product detail routes", async () => {
   const angledHtml = await angledProduct.text();
   assert.match(angledHtml, /17° ou 30°/i);
   assert.match(angledHtml, /Seleção por plataforma NC, RC, RB ou WB/i);
+
+  const tBaseHtml = await (await render("/produtos/t-base-cm-11-5-parafuso-cm")).text();
+  assert.match(tBaseHtml, /\/products\/featured\/t-base-cone-morse-11-5\.png/i);
+  assert.match(tBaseHtml, /\/products\/featured\/parafuso-t-base-cone-morse\.png/i);
+  const implantsHtml = await (await render("/produtos/implantes-cm-he")).text();
+  assert.match(implantsHtml, /Singular e Systhex/i);
+  assert.doesNotMatch(implantsHtml, /\/products\/featured\/implantes-cm-he\.webp/i);
 
   const missing = await render("/produtos/produto-inexistente");
   assert.equal(missing.status, 404);
