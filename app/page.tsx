@@ -2,7 +2,7 @@ import { CategoriesSection } from "@/components/sections/CategoriesSection";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero } from "@/components/sections/Hero";
-import { SeoFaq, seoFaqItems } from "@/components/sections/SeoFaq";
+import { SeoFaq } from "@/components/sections/SeoFaq";
 import {
   ClinicsSection,
   ComponentsSection,
@@ -30,7 +30,14 @@ export default function Home() {
           name: siteConfig.name,
           alternateName: siteConfig.alternateName,
           url: siteConfig.siteUrl,
-          logo: absoluteUrl("/brand/adapta-prime-logo.png"),
+          logo: {
+            "@type": "ImageObject",
+            url: absoluteUrl("/brand/adapta-prime-symbol-mobile.png"),
+            contentUrl: absoluteUrl("/brand/adapta-prime-symbol-mobile.png"),
+            width: 500,
+            height: 500,
+            caption: siteConfig.name,
+          },
           description: siteConfig.description,
           areaServed: {
             "@type": "Country",
@@ -39,6 +46,13 @@ export default function Home() {
           knowsAbout: categories.map((category) => category.name),
           ...(siteConfig.email ? { email: siteConfig.email } : {}),
           ...(siteConfig.whatsapp ? { telephone: siteConfig.whatsapp } : {}),
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: `+${siteConfig.whatsapp}`,
+            contactType: "customer service",
+            availableLanguage: "Portuguese",
+            areaServed: "BR",
+          },
           ...(siteConfig.instagram ? { sameAs: [siteConfig.instagram] } : {}),
         },
         {
@@ -60,18 +74,6 @@ export default function Home() {
             position: index + 1,
             name: category.name,
             url: absoluteUrl(`/solucoes/${category.slug}`),
-          })),
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: seoFaqItems.map((item) => ({
-            "@type": "Question",
-            name: item.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: item.answer,
-            },
           })),
         },
       ]

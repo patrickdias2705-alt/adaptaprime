@@ -4,9 +4,9 @@ import { products } from "@/lib/products";
 import { siteConfig } from "@/lib/site-config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  if (!siteConfig.siteUrl) return [];
+  if (!siteConfig.siteUrl || !siteConfig.indexable) return [];
 
-  const routes = ["", "/solucoes", "/produtos", "/sobre"];
+  const routes = ["", "/solucoes", "/produtos", "/sobre", "/politica-de-privacidade", "/termos-de-uso"];
   return [
     ...routes.map((route) => ({ url: `${siteConfig.siteUrl}${route}` })),
     ...categories.map((category) => ({

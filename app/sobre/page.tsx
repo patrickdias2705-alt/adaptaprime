@@ -5,6 +5,8 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 import { VisualPageHero } from "@/components/ui/VisualPageHero";
 import { createPageMetadata } from "@/lib/metadata";
 import { getWhatsAppUrl } from "@/lib/site-config";
+import { StructuredData } from "@/components/ui/StructuredData";
+import { informationPage } from "@/lib/structured-data";
 
 export const metadata = createPageMetadata(
   "Sobre nós",
@@ -38,8 +40,10 @@ const method = [
 ];
 
 export default function AboutPage() {
+  const schema = informationPage("AboutPage", "Sobre a Adapta Prime", "Conheça o propósito e a forma de atendimento da Adapta Prime.", "/sobre");
   return (
     <>
+      {schema ? <StructuredData data={schema} /> : null}
       <VisualPageHero
         variant="about"
         desktopSrc="/sections/sobre-hero.webp"

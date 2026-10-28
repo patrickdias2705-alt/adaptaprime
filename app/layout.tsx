@@ -1,9 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { LeadClickTracker } from "@/components/analytics/LeadClickTracker";
-import { Footer } from "@/components/layout/Footer";
-import { FloatingContact } from "@/components/layout/FloatingContact";
-import { Header } from "@/components/layout/Header";
-import { LightBackgroundWave } from "@/components/layout/LightBackgroundWave";
+import { SiteShell } from "@/components/layout/SiteShell";
 import { absoluteUrl, siteConfig } from "@/lib/site-config";
 import "./globals.css";
 
@@ -27,9 +23,9 @@ export const metadata: Metadata = {
   },
   alternates: siteConfig.siteUrl ? { canonical: siteConfig.siteUrl } : undefined,
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/brand/adapta-prime-logo.png",
+    icon: [{ url: "/favicon.png", type: "image/png", sizes: "500x500" }],
+    shortcut: "/favicon.png",
+    apple: [{ url: "/brand/adapta-prime-symbol-mobile.png", sizes: "500x500", type: "image/png" }],
   },
   openGraph: {
     title: "Adapta Prime | Precisão para a rotina clínica",
@@ -49,11 +45,11 @@ export const metadata: Metadata = {
     images: siteConfig.siteUrl ? [absoluteUrl(siteConfig.ogImage)] : undefined,
   },
   robots: {
-    index: true,
-    follow: true,
+    index: siteConfig.indexable,
+    follow: siteConfig.indexable,
     googleBot: {
-      index: true,
-      follow: true,
+      index: siteConfig.indexable,
+      follow: siteConfig.indexable,
       "max-image-preview": "large",
       "max-snippet": -1,
       "max-video-preview": -1,
@@ -73,14 +69,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="preload" href="/fonts/inter-variable-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>
-        <a className="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
-        <LightBackgroundWave />
-        <Header />
-        <main id="conteudo-principal">{children}</main>
-        <Footer />
-        <FloatingContact />
-        <LeadClickTracker />
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );

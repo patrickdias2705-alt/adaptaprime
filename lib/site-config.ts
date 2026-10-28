@@ -28,6 +28,7 @@ export const siteConfig = {
   locale: "pt_BR",
   language: "pt-BR",
   country: "BR",
+  indexable: !["preview", "development"].includes(process.env.VERCEL_ENV ?? ""),
   ogImage: "/og.png",
   googleSiteVerification:
     process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",

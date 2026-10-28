@@ -29,6 +29,7 @@ export async function generateMetadata({
     category.seoTitle,
     category.seoDescription,
     `/solucoes/${category.slug}`,
+    category.image,
   );
 }
 

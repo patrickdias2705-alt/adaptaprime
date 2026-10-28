@@ -10,14 +10,16 @@ export function LogisticsVideo() {
     if (!video) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let isVisible = true;
+    let isVisible = false;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
 
     const syncPlayback = () => {
-      if (reducedMotion.matches || !isVisible) {
+      if (reducedMotion.matches || connection?.saveData || !isVisible || document.hidden) {
         video.pause();
         return;
       }
 
+      if (!video.getAttribute("src")) video.src = "/media/brasil-logistica.mp4";
       void video.play().catch(() => undefined);
     };
 
@@ -31,11 +33,12 @@ export function LogisticsVideo() {
 
     visibilityObserver.observe(video);
     reducedMotion.addEventListener("change", syncPlayback);
-    syncPlayback();
+    document.addEventListener("visibilitychange", syncPlayback);
 
     return () => {
       visibilityObserver.disconnect();
       reducedMotion.removeEventListener("change", syncPlayback);
+      document.removeEventListener("visibilitychange", syncPlayback);
     };
   }, []);
 
@@ -47,12 +50,10 @@ export function LogisticsVideo() {
         loop
         muted
         playsInline
-        preload="metadata"
+        preload="none"
         poster="/media/brasil-logistica-poster.webp"
         aria-hidden="true"
-      >
-        <source src="/media/brasil-logistica.mp4" type="video/mp4" />
-      </video>
+      />
       <span className="logistics-video__shade" aria-hidden="true" />
     </div>
   );

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MeasurementPreferencesButton } from "@/components/analytics/GoogleMeasurement";
 import { categories } from "@/lib/categories";
 import { getWhatsAppUrl, navigation, siteConfig } from "@/lib/site-config";
 import { BrandLogo } from "./BrandLogo";
@@ -61,6 +62,7 @@ export function Footer() {
         <div>
           <Link href="/politica-de-privacidade">Política de Privacidade</Link>
           <Link href="/termos-de-uso">Termos de Uso</Link>
+          <MeasurementPreferencesButton />
         </div>
       </div>
     </footer>

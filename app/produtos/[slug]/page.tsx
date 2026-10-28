@@ -8,6 +8,7 @@ import { ProductModelViewer } from "@/components/ui/ProductModelViewer";
 import { StructuredData } from "@/components/ui/StructuredData";
 import { createPageMetadata } from "@/lib/metadata";
 import { getProduct, products } from "@/lib/products";
+import { productEntity } from "@/lib/structured-data";
 import { absoluteUrl, getWhatsAppUrl, siteConfig } from "@/lib/site-config";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     `${product.name} — ${product.category}`,
     `${product.description} Consulte disponibilidade com a equipe Adapta Prime.`,
     `/produtos/${product.slug}`,
+    product.image,
   );
 }
 
@@ -44,12 +46,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
           description: product.description,
           inLanguage: siteConfig.language,
           isPartOf: { "@id": `${siteConfig.siteUrl}/#website` },
-          about: {
-            "@type": "Thing",
-            name: product.category,
-          },
+          mainEntity: { "@id": `${productUrl}#product` },
           ...(product.image ? { primaryImageOfPage: absoluteUrl(product.image) } : {}),
         },
+        productEntity(product),
         {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",

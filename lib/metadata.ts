@@ -5,6 +5,7 @@ export function createPageMetadata(
   title: string,
   description: string,
   path: string,
+  image?: string,
 ): Metadata {
   const canonical = siteConfig.siteUrl
     ? new URL(path, siteConfig.siteUrl).toString()
@@ -19,11 +20,11 @@ export function createPageMetadata(
     publisher: siteConfig.name,
     category: "Odontologia",
     robots: {
-      index: true,
-      follow: true,
+      index: siteConfig.indexable,
+      follow: siteConfig.indexable,
       googleBot: {
-        index: true,
-        follow: true,
+        index: siteConfig.indexable,
+        follow: siteConfig.indexable,
         "max-image-preview": "large",
         "max-snippet": -1,
         "max-video-preview": -1,
@@ -46,14 +47,14 @@ export function createPageMetadata(
       url: canonical,
       siteName: "Adapta Prime",
       images: siteConfig.siteUrl
-        ? [{ url: absoluteUrl(siteConfig.ogImage), width: 1729, height: 910, alt: "Adapta Prime — Precisão para a rotina clínica" }]
+        ? [image ? { url: absoluteUrl(image), alt: title } : { url: absoluteUrl(siteConfig.ogImage), width: 1729, height: 910, alt: "Adapta Prime — Precisão para a rotina clínica" }]
         : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | Adapta Prime`,
       description,
-      images: siteConfig.siteUrl ? [absoluteUrl(siteConfig.ogImage)] : undefined,
+      images: siteConfig.siteUrl ? [absoluteUrl(image ?? siteConfig.ogImage)] : undefined,
     },
   };
 }

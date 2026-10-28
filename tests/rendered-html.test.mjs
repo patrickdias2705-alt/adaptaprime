@@ -200,6 +200,52 @@ test("keeps the technical SEO surface in place", async () => {
   assert.match(sitemap, /produtos\//);
 });
 
+test("serves complete, indexable legal pages and the official brand favicon", async () => {
+  for (const path of ["/politica-de-privacidade", "/termos-de-uso"]) {
+    const response = await render(path);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, /<nav[^>]*aria-label="Índice:/);
+    assert.match(html, /datetime="2026-10-28"/i);
+    assert.match(html, /<meta name="robots" content="index, follow"/);
+    assert.match(html, /href="https:\/\/wa\.me\/5531992190003/);
+    assert.doesNotMatch(html, /Conteúdo jurídico em revisão|Esta página está reservada|noindex/);
+    for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) {
+      assert.ok(html.includes(`id="${id}"`), `Missing anchor ${id} on ${path}`);
+    }
+  }
+  const home = await (await render()).text();
+  assert.match(home, /<link rel="icon" href="\/favicon\.png"[^>]*sizes="500x500"/);
+  assert.doesNotMatch(home, /href="\/favicon\.svg"/);
+  const icon = await render("/favicon.png");
+  assert.equal(icon.status, 200);
+  assert.match(icon.headers.get("content-type") ?? "", /image\/png/);
+  const bytes = Buffer.from(await icon.arrayBuffer());
+  assert.equal(bytes.readUInt32BE(16), 500);
+  assert.equal(bytes.readUInt32BE(20), 500);
+  assert.deepEqual(bytes, await readFile(new URL("../public/brand/adapta-prime-symbol-mobile.png", import.meta.url)));
+});
+
+test("does not server-load marketing tags, exposes privacy choices and protects CRM indexing", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /Preferências de cookies/);
+  assert.doesNotMatch(html, /<script[^>]+src="https:\/\/www\.googletagmanager\.com/);
+  assert.doesNotMatch(html, /<iframe[^>]+src="https:\/\/www\.googletagmanager\.com/);
+  assert.match(html, /preload="none"/);
+  assert.doesNotMatch(html, /<source[^>]+src="\/media\/brasil-logistica\.mp4"/);
+  const crmResponse = await render("/crm");
+  const crmHtml = await crmResponse.text();
+  if (crmResponse.status === 404) assert.match(crmHtml, /<meta name="robots" content="noindex/);
+  else {
+    assert.equal(crmResponse.status, 200);
+    assert.match(crmHtml, /<meta name="robots" content="noindex, nofollow"/);
+    assert.doesNotMatch(crmHtml, /Preferências de cookies/);
+  }
+  const robots = await (await render("/robots.txt")).text();
+  assert.doesNotMatch(robots, /Disallow: \/crm/);
+  assert.match(robots, /Disallow: \/api\//);
+});
+
 test("removes the temporary starter surface", async () => {
   const [page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),

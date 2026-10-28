@@ -3,11 +3,12 @@ import { siteConfig } from "@/lib/site-config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
+    rules: siteConfig.indexable ? {
       userAgent: "*",
       allow: "/",
-    },
-    sitemap: siteConfig.siteUrl ? `${siteConfig.siteUrl}/sitemap.xml` : undefined,
+      disallow: ["/api/"],
+    } : { userAgent: "*", disallow: "/" },
+    sitemap: siteConfig.siteUrl && siteConfig.indexable ? `${siteConfig.siteUrl}/sitemap.xml` : undefined,
     host: siteConfig.siteUrl || undefined,
   };
 }
