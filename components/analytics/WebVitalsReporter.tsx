@@ -1,13 +1,25 @@
 "use client";
 
 import { useReportWebVitals } from "next/web-vitals";
-import { cleanPageUrl, pushMeasurement } from "@/lib/measurement";
+import { useEffect, useState } from "react";
+import { consentEvent } from "@/lib/measurement";
+import { reportVital } from "@/lib/measurement-runtime";
 
 type Metric = Parameters<Parameters<typeof useReportWebVitals>[0]>[0];
 function report(metric: Metric) {
-  if (!["LCP", "CLS", "INP", "FCP", "TTFB"].includes(metric.name)) return;
-  pushMeasurement({ event: "web_vitals", metric_name: metric.name, metric_id: metric.id,
-    metric_value: metric.value, metric_delta: metric.delta, metric_rating: metric.rating,
-    page_location: cleanPageUrl(window.location.href) });
+  reportVital(metric);
 }
-export function WebVitalsReporter() { useReportWebVitals(report); return null; }
+
+function VitalsCollection() { useReportWebVitals(report); return null; }
+
+export function WebVitalsReporter() {
+  const [started, setStarted] = useState(false);
+  useEffect(() => {
+    // Register once after opting in. The runtime also gates every callback after revocation.
+    const start = () => { if (window.adaptaConsentChoice?.analytics) setStarted(true); };
+    start();
+    window.addEventListener(consentEvent, start);
+    return () => window.removeEventListener(consentEvent, start);
+  }, []);
+  return started ? <VitalsCollection /> : null;
+}

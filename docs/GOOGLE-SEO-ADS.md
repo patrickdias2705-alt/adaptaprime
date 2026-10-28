@@ -12,7 +12,7 @@ Pesquisa e implementação: 28/10/2026. Contêiner fornecido: `GTM-523HQHQ`.
 - Previews da Vercel recebem noindex; CRM recebe noindex e fica fora do sitemap. Robots não é controle de acesso: a autenticação administrativa continua necessária.
 - Fonte principal recebe preload. O vídeo decorativo só carrega ao se aproximar da tela; respeita movimento reduzido, economia de dados e pausa em aba oculta.
 - GTM carrega de forma assíncrona após autorização de pelo menos uma categoria opcional. Recusar não impede navegação ou WhatsApp. Personalização de anúncios permanece negada.
-- A escolha dura até 180 dias. O botão do rodapé permite rever/revogar. Cookies de terceiros anteriores devem ser apagados pelo navegador se necessário.
+- A escolha dura até 180 dias, em `localStorage` (`adapta:consent:v1`) e no cookie essencial próprio `adapta_consent_v1` (Path=/, SameSite=Lax, Secure em HTTPS). O cookie permite restaurar a escolha quando o armazenamento local estiver bloqueado. A gravação mais recente prevalece; permissões conflitantes com o mesmo horário são negadas. Se o navegador bloquear ambos, a escolha só dura no documento atual. O botão do rodapé permite rever/revogar. Cookies de terceiros anteriores devem ser apagados pelo navegador se necessário.
 - A medição só começa depois que o template de consentimento do contêiner confirma a aplicação das APIs nativas. Sem esse template, o GTM pode carregar após aceitar, mas os eventos de medição da aplicação ficam bloqueados.
 - Não foi colocado iframe noscript incondicional: ele poderia enviar uma requisição externa antes de o visitante fazer sua escolha. Sem JavaScript o catálogo e os links funcionam, e essa integração não mede.
 - Há apenas uma integração GTM. Não instalar outro snippet gtag/GA4 paralelo.
@@ -65,7 +65,9 @@ Não criar variáveis para conteúdo do WhatsApp, nome, telefone, e-mail, texto 
 6. Criar GA4 Event `view_item`, evento homônimo com consentimento concedido, enviando ecommerce a partir da camada de dados. Não emitir valor/receita sem dado real.
 7. Criar GA4 Event `web_vitals` com os campos `metric_*` e `page_location`, consentimento concedido. Não marcar web_vitals como evento principal/conversão. Usar definições personalizadas no GA4 para métricas/dimensões de interesse, evitando cadastrar metric_id como dimensão comum de alta cardinalidade.
 
-LCP, INP e CLS ajudam a acompanhar experiência real. Uma métrica pode só aparecer ao interagir, ocultar a aba ou sair da página; não interpretar ausência inicial como falha. Métricas anteriores ao consentimento não são reenviadas retroativamente.
+LCP, INP e CLS ajudam a acompanhar experiência real. A assinatura das métricas começa após autorizar estatísticas; a biblioteca pode disponibilizar tempos de carregamento já medidos localmente pelo navegador para esse documento. Nenhum evento é enviado antes da autorização e da confirmação nativa do GTM. Enquanto o template confirma, a integração retém no máximo cinco métricas em memória; revogar estatísticas descarta essa fila. Uma métrica pode só aparecer ao interagir, ocultar a aba ou sair da página; não interpretar ausência inicial como falha. As métricas descrevem o carregamento do documento inicial, não cada mudança de rota do App Router.
+
+O estado da ponte de consentimento pertence ao documento e não é revogado ao desmontar um componente React. Restaurar a mesma escolha não reinicializa o consentimento nem dispara novamente a tag principal. Cada mudança de pathname confirmada pelo App Router tenta um `page_view`; só um envio efetivo entra na deduplicação. Voltar a uma rota anteriormente visitada gera outra visualização legítima. O caminho atual é reavaliado quando o template confirma, sem reenviar rotas atravessadas antes da autorização.
 
 ### 4. Google Ads e atribuição
 
@@ -96,6 +98,8 @@ Não remover identificadores gclid/gbraid/wbraid dos links de chegada dos anúnc
 7. CRM e APIs sem eventos comerciais; não criar tags de medição em todas as mudanças de histórico.
 8. Conferir Tag Assistant, GA4 DebugView/Realtime, diagnósticos Ads e Consent Overview no GTM. Fazer uma conversão de teste por vez e verificar ausência de duplicação.
 9. Validar JSON-LD no Schema Markup Validator; Rich Results Test apenas para os tipos elegíveis. Search Console e PageSpeed Insights precisam do domínio público acessível. Não atribuir nota Lighthouse/CrUX ou ganho de conversão sem medição.
+10. Com apenas Estatísticas autorizada, recarregar o produto e reabrir as preferências: Estatísticas marcada e Anúncios desmarcada. Navegar produto → catálogo → produto, incluindo Voltar/Avançar: exatamente uma nova `page_view` por mudança e `page_referrer` igual à página anterior. Salvar sem mudar as preferências não duplica a página.
+11. Para `web_vitals`, autorizar Estatísticas, recarregar mantendo a escolha, interagir com a página e alternar para outra aba sem fechar a janela de Preview. Conferir eventos reais e `metric_*`; INP pode não existir sem interação. Não criar eventos sintéticos só para fazer o teste passar. Confirmar os hits/DebugView além do disparo da tag.
 
 ## Pesquisa e referências
 

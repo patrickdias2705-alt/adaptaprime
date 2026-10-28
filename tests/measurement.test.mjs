@@ -25,6 +25,169 @@ function loadHelper(relative, globals = {}, env = {}) {
   return load(resolve(root, relative));
 }
 
+function browserRuntime({ stored = new Map(), cookies = new Map(), blockedStorage = false } = {}) {
+  const location = new URL("https://adaptaprime.com/?email=private@example.com#private");
+  const scripts = [];
+  const timers = [];
+  const events = new EventTarget();
+  const browser = { location, dataLayer: [],
+    localStorage: {
+      getItem: key => { if (blockedStorage) throw new Error("Blocked"); return stored.get(key) ?? null; },
+      setItem: (key, value) => { if (blockedStorage) throw new Error("Blocked"); stored.set(key, value); },
+      removeItem: key => { if (blockedStorage) throw new Error("Blocked"); stored.delete(key); },
+    },
+    setTimeout: fn => { timers.push(fn); return timers.length; },
+    dispatchEvent: event => events.dispatchEvent(event),
+    addEventListener: (...args) => events.addEventListener(...args),
+  };
+  const document = { title: "Início", referrer: "https://example.com/?private=hidden",
+    get cookie() { return [...cookies].map(([key, value]) => `${key}=${value}`).join("; "); },
+    set cookie(value) {
+      const [pair] = value.split(";");
+      const separator = pair.indexOf("=");
+      const key = pair.slice(0, separator);
+      if (/Max-Age=0(?:;|$)/.test(value)) cookies.delete(key);
+      else cookies.set(key, pair.slice(separator + 1));
+    },
+    getElementById: id => scripts.find(script => script.id === id),
+    createElement: () => ({ remove() { scripts.splice(scripts.indexOf(this), 1); } }),
+    head: { appendChild: script => scripts.push(script) },
+  };
+  const runtime = loadHelper("lib/measurement-runtime.ts", { window: browser, document, Event });
+  const consentStates = [];
+  return { runtime, browser, document, scripts, stored, cookies, consentStates,
+    flush() { while (timers.length) timers.shift()(); },
+    choose(analytics = true, advertising = false) {
+      runtime.saveMeasurementConsent({ version: 1, analytics, advertising, updatedAt: Date.now() });
+    },
+    navigate(path, title = path) { browser.location = new URL(path, location.origin); document.title = title; runtime.reportPage(browser.location.pathname); },
+    named(name) { return browser.dataLayer.filter(event => event.event === name); },
+    connectTemplate() {
+      const template = readFileSync(new URL("../docs/gtm/consent-template.tpl", import.meta.url), "utf8");
+      const code = template.split("___SANDBOXED_JS_FOR_WEB_TEMPLATE___")[1].split("___")[0];
+      vm.runInNewContext(code, { require: name => ({
+        setDefaultConsentState: state => consentStates.push(state),
+        updateConsentState: state => consentStates.push(state),
+        callInWindow: (name, callback) => browser[name](callback),
+      })[name], data: { gtmOnSuccess() {} } });
+    },
+  };
+}
+
+test("SPA navigation sends one page per committed route, including return visits, after the real consent template acknowledges", () => {
+  const h = browserRuntime();
+  h.runtime.restoreMeasurementConsent();
+  assert.equal(h.scripts.length, 0);
+  h.choose();
+  h.runtime.reportPage("/");
+  h.navigate("/produtos"); // The latest route wins while GTM is still starting.
+  assert.equal(h.named("page_view").length, 0);
+  h.connectTemplate();
+  h.flush();
+  assert.equal(h.named("page_view").length, 1);
+  assert.equal(h.named("page_view")[0].page_location, "https://adaptaprime.com/produtos");
+  assert.equal(h.named("page_view")[0].page_referrer, "https://example.com/");
+  h.runtime.restoreMeasurementConsent(); // React remount must preserve native readiness.
+  h.runtime.reportPage("/produtos");
+  h.navigate("/produtos/mini-pilar-cm?phone=private#private", "Mini Pilar CM");
+  h.navigate("/produtos/mini-pilar-cm", "Mini Pilar CM");
+  h.navigate("/produtos", "Catálogo");
+  assert.equal(h.scripts.length, 1);
+  assert.equal(h.named("adapta_consent_ready").length, 1);
+  assert.equal(h.named("page_view").length, 3);
+  assert.equal(h.named("page_view")[1].page_referrer, "https://adaptaprime.com/produtos");
+  assert.equal(h.named("page_view")[2].page_referrer, "https://adaptaprime.com/produtos/mini-pilar-cm");
+  assert.equal(h.named("view_item").length, 1);
+  assert.equal(h.named("view_item")[0].ecommerce.items[0].item_id, "mini-pilar-cm");
+  assert.equal(JSON.stringify(h.named("page_view")).includes("private"), false);
+});
+
+test("saved statistics survive a fresh document; rejecting survives too and does not load GTM", () => {
+  const first = browserRuntime();
+  first.choose();
+  const reload = browserRuntime(first);
+  assert.equal(reload.runtime.restoreMeasurementConsent().analytics, true);
+  assert.equal(reload.browser.adaptaMeasurementReady, false);
+  assert.equal(reload.scripts.length, 1);
+  reload.connectTemplate(); reload.flush();
+  assert.equal(reload.named("page_view").length, 1);
+  reload.choose(false, false); reload.flush();
+  const deniedReload = browserRuntime(reload);
+  const denied = deniedReload.runtime.restoreMeasurementConsent();
+  assert.equal(denied.analytics, false);
+  assert.equal(denied.advertising, false);
+  assert.equal(deniedReload.scripts.length, 0);
+});
+
+test("essential cookie restores the choice when localStorage is blocked and a newer revocation beats stale grants", () => {
+  const first = browserRuntime({ blockedStorage: true });
+  first.choose();
+  const reload = browserRuntime({ ...first, blockedStorage: true });
+  assert.equal(reload.runtime.restoreMeasurementConsent().analytics, true);
+  const stale = { version: 1, analytics: true, advertising: true, updatedAt: Date.now() - 1000 };
+  first.stored.set("adapta:consent:v1", JSON.stringify(stale));
+  reload.choose(false, false);
+  const recoveredStorage = browserRuntime(reload);
+  assert.equal(recoveredStorage.runtime.restoreMeasurementConsent().analytics, false);
+  assert.equal(recoveredStorage.scripts.length, 0);
+});
+
+test("revocation invalidates a pending native acknowledgement and stops page/product/vitals events", () => {
+  const h = browserRuntime();
+  h.choose(); h.connectTemplate();
+  h.choose(false, false); h.flush();
+  assert.ok(Object.values(h.consentStates.at(-1)).every(value => value === "denied"));
+  h.navigate("/produtos/mini-pilar-cm");
+  h.runtime.reportVital({ name: "LCP", id: "lcp", value: 100, delta: 100, rating: "good" });
+  assert.equal(h.named("page_view").length, 0);
+  assert.equal(h.named("view_item").length, 0);
+  assert.equal(h.named("web_vitals").length, 0);
+  assert.equal(h.named("adapta_consent_ready").length, 1);
+  h.choose(); h.flush();
+  assert.equal(h.named("page_view").length, 1);
+  h.navigate("/crm/leads");
+  h.runtime.reportVital({ name: "CLS", id: "cls", value: 0.1, delta: 0.1, rating: "good" });
+  assert.equal(h.named("page_view").length, 1);
+  assert.equal(h.named("web_vitals").length, 0);
+});
+
+test("Web Vitals wait for native readiness, retain document attribution and drop queued data on revocation", () => {
+  const h = browserRuntime();
+  h.runtime.restoreMeasurementConsent();
+  const metric = { name: "FCP", id: "fcp", value: 110, delta: 110, rating: "good" };
+  h.runtime.reportVital(metric); // No analytics permission yet.
+  h.choose();
+  h.runtime.reportVital({ ...metric, name: "TTFB", id: "ttfb" });
+  assert.equal(h.named("web_vitals").length, 0);
+  h.navigate("/produtos"); h.connectTemplate(); h.flush();
+  assert.equal(h.named("web_vitals").length, 1);
+  assert.equal(h.named("web_vitals")[0].metric_name, "TTFB");
+  assert.equal(h.named("web_vitals")[0].page_location, "https://adaptaprime.com/");
+  h.runtime.reportVital({ ...metric, name: "TTFB", id: "ttfb" });
+  assert.equal(h.named("web_vitals").length, 1); // Duplicate callback after a remount.
+  h.runtime.reportVital({ ...metric, name: "CLS", id: "cls", value: 0.1, delta: 0.1 });
+  h.runtime.reportVital({ ...metric, name: "CLS", id: "cls", value: 0.2, delta: 0.1 });
+  assert.equal(h.named("web_vitals").length, 3); // A changed value is legitimate.
+  h.choose(false, true);
+  h.runtime.reportVital({ ...metric, name: "LCP" });
+  h.flush();
+  assert.equal(h.named("web_vitals").length, 3);
+});
+
+test("revocation discards Web Vitals queued before readiness; an expired choice never emits a page", () => {
+  const h = browserRuntime();
+  h.choose();
+  h.runtime.reportVital({ name: "LCP", id: "queued-lcp", value: 100, delta: 100, rating: "good" });
+  h.choose(false, false);
+  h.connectTemplate(); h.flush();
+  h.choose(); h.flush();
+  assert.equal(h.named("web_vitals").length, 0);
+  assert.equal(h.named("page_view").length, 1);
+  h.browser.adaptaConsentChoice.updatedAt = 0;
+  h.navigate("/produtos");
+  assert.equal(h.named("page_view").length, 1);
+});
+
 test("consent fails closed for malformed, stale, future or partial choices", () => {
   const m = loadHelper("lib/measurement.ts");
   const now = Date.now();

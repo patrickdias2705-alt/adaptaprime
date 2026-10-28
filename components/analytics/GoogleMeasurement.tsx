@@ -3,57 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { products } from "@/lib/products";
-import { cleanPageUrl, consentEvent, consentKey, consentReadyEvent, googleConsent, gtmId, preferencesEvent, pushMeasurement, readConsent, type ConsentChoice, type ConsentState } from "@/lib/measurement";
+import { consentKey, consentReadyEvent, gtmId, parseConsent, preferencesEvent, type ConsentChoice } from "@/lib/measurement";
+import { reportPage, restoreMeasurementConsent, saveMeasurementConsent } from "@/lib/measurement-runtime";
 import styles from "./GoogleMeasurement.module.css";
-
-let lastPage = "";
-let lastReferrer = "";
-const callbacks = new Set<(state: ConsentState) => void>();
-
-function applyConsent(choice: ConsentChoice | null) {
-  window.adaptaConsentChoice = choice;
-  if (!choice?.analytics) lastPage = "";
-  callbacks.forEach(callback => callback(googleConsent(choice)));
-}
-
-function loadContainer() {
-  if (!gtmId || document.getElementById("adapta-gtm")) return;
-  window.adaptaConsentSubscribe = callback => {
-    callbacks.add(callback);
-    callback(googleConsent(window.adaptaConsentChoice ?? null));
-  };
-  // Called only by the GTM consent template after its native consent API runs.
-  window.adaptaConsentReady = () => {
-    window.setTimeout(() => {
-      window.adaptaMeasurementReady = true;
-      window.dataLayer?.push({ event: "adapta_consent_ready", ...googleConsent(window.adaptaConsentChoice ?? null),
-        page_location: cleanPageUrl(window.location.href), page_title: document.title });
-      window.dispatchEvent(new Event(consentReadyEvent));
-    }, 0);
-  };
-  window.dataLayer ??= [];
-  window.dataLayer.push({ ...googleConsent(window.adaptaConsentChoice ?? null) });
-  window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-  const script = document.createElement("script");
-  script.id = "adapta-gtm";
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
-  script.onerror = () => script.remove();
-  document.head.appendChild(script);
-}
-
-function reportPage(pathname: string) {
-  const choice = window.adaptaConsentChoice;
-  if (!window.adaptaMeasurementReady || !choice?.analytics || lastPage === pathname) return;
-  const url = cleanPageUrl(window.location.href);
-  pushMeasurement({ event: "page_view", page_location: url, page_path: pathname, page_title: document.title,
-    page_referrer: lastReferrer || cleanPageUrl(document.referrer) });
-  lastPage = pathname;
-  lastReferrer = url;
-  const product = products.find(item => pathname === `/produtos/${item.slug}`);
-  if (product) pushMeasurement({ event: "view_item", ecommerce: { items: [{ item_id: product.slug, item_name: product.name, item_category: product.category }] } });
-}
 
 export function GoogleMeasurement() {
   const pathname = usePathname();
@@ -61,25 +13,22 @@ export function GoogleMeasurement() {
   const [analytics, setAnalytics] = useState(false);
   const [advertising, setAdvertising] = useState(false);
 
-  useEffect(() => () => {
-    applyConsent(null);
-    window.adaptaMeasurementReady = false;
-  }, []);
-
   useEffect(() => {
-    const restore = () => {
-      const choice = readConsent();
-      applyConsent(choice);
+    const reflectChoice = (choice: ConsentChoice | null, show = !choice) => {
       setAnalytics(choice?.analytics ?? false);
       setAdvertising(choice?.advertising ?? false);
-      setOpen(!choice && Boolean(gtmId));
-      if (choice?.analytics || choice?.advertising) loadContainer();
-      reportPage(pathname);
+      setOpen(show && Boolean(gtmId));
     };
-    const frame = requestAnimationFrame(restore);
-    const ready = () => reportPage(pathname);
-    const preferences = () => setOpen(true);
-    const storage = (event: StorageEvent) => { if (event.key === consentKey || event.key === null) restore(); };
+    const frame = requestAnimationFrame(() => reflectChoice(restoreMeasurementConsent()));
+    const ready = () => reportPage(window.location.pathname);
+    const preferences = () => reflectChoice(restoreMeasurementConsent(), true);
+    const storage = (event: StorageEvent) => {
+      if (event.key !== consentKey && event.key !== null) return;
+      // Use the incoming value, including a deletion, rather than an older cookie.
+      const choice = parseConsent(event.newValue);
+      saveMeasurementConsent(choice);
+      reflectChoice(choice);
+    };
     window.addEventListener("storage", storage);
     window.addEventListener(consentReadyEvent, ready);
     window.addEventListener(preferencesEvent, preferences);
@@ -89,14 +38,16 @@ export function GoogleMeasurement() {
       window.removeEventListener(consentReadyEvent, ready);
       window.removeEventListener(preferencesEvent, preferences);
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => reportPage(pathname), 0);
+    return () => window.clearTimeout(timer);
   }, [pathname]);
 
   function save(allowAnalytics: boolean, allowAdvertising: boolean) {
     const choice: ConsentChoice = { version: 1, analytics: allowAnalytics, advertising: allowAdvertising, updatedAt: Date.now() };
-    try { localStorage.setItem(consentKey, JSON.stringify(choice)); } catch { /* Apply for this page even when storage is unavailable. */ }
-    applyConsent(choice);
-    window.dispatchEvent(new Event(consentEvent));
-    if (allowAnalytics || allowAdvertising) loadContainer();
+    saveMeasurementConsent(choice);
     setAnalytics(allowAnalytics);
     setAdvertising(allowAdvertising);
     setOpen(false);
