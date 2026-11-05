@@ -96,7 +96,7 @@ export function reportPage(pathname: string) {
   if (!sent) return;
   lastPage = url;
   lastReferrer = url;
-  const product = products.find(item => pathname === `/produtos/${item.slug}`);
+  const product = products.find(item => pathname === `/produtos/${item.slug}` || pathname.startsWith(`/produtos/${item.slug}/`));
   if (product) pushMeasurement({ event: "view_item", ecommerce: { items: [{ item_id: product.slug, item_name: product.name, item_category: product.category }] } });
 }
 

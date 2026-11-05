@@ -92,6 +92,24 @@ export function getWhatsAppUrl(input?: string | WhatsAppLeadContext) {
   return `https://wa.me/${number}${text}`;
 }
 
+const WHATSAPP_ORIGIN_LABEL = "Origem do contato: ";
+
+// Reads only the landing URL and changes only the visitor's own WhatsApp text; nothing reaches Analytics or Ads.
+export function campaignOriginLabel(search: string) {
+  const query = new URLSearchParams(search);
+  if (query.get("utm_source") === "google" && query.get("utm_medium") === "shopping") return "Google Shopping";
+  if (query.has("gclid") || (query.get("utm_source") === "google" && query.get("utm_medium") === "cpc")) return "Google Ads";
+  return "";
+}
+
+export function addCampaignOrigin(whatsappHref: string, label: string) {
+  if (!label) return whatsappHref;
+  const url = new URL(whatsappHref);
+  const text = url.searchParams.get("text");
+  if (!text || !text.includes(WHATSAPP_ORIGIN_LABEL) || text.includes(`${WHATSAPP_ORIGIN_LABEL}${label} > `)) return whatsappHref;
+  return `${url.origin}${url.pathname}?text=${encodeURIComponent(text.replace(WHATSAPP_ORIGIN_LABEL, `${WHATSAPP_ORIGIN_LABEL}${label} > `))}`;
+}
+
 export function getLeadPageLabel(pathname: string) {
   if (pathname === "/") return "Início";
   if (pathname === "/produtos") return "Catálogo de produtos";

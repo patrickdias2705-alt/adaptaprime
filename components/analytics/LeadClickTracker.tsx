@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { cleanPageUrl, pushMeasurement } from "@/lib/measurement";
+import { addCampaignOrigin, campaignOriginLabel } from "@/lib/site-config";
 
 type LeadClick = {
   event: "whatsapp_click";
@@ -22,6 +23,7 @@ export function LeadClickTracker() {
       if (!cta) return;
       const destination = new URL(cta.href, window.location.origin);
       if (destination.protocol !== "https:" || destination.hostname !== "wa.me") return;
+      cta.href = addCampaignOrigin(cta.href, campaignOriginLabel(window.location.search));
       const now = Date.now();
       if (now - (lastClicks.get(cta) ?? 0) < 900) return;
       lastClicks.set(cta, now);

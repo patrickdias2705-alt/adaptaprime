@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { categories } from "@/lib/categories";
 import { products } from "@/lib/products";
+import { salesItemPath, salesItems } from "@/lib/sales-items";
 import { siteConfig } from "@/lib/site-config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -14,6 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...products.map((product) => ({
       url: `${siteConfig.siteUrl}/produtos/${product.slug}`,
+    })),
+    ...salesItems.map((item) => ({
+      url: `${siteConfig.siteUrl}${salesItemPath(item)}`,
     })),
   ];
 }

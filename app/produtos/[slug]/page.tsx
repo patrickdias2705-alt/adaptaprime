@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ProductPhotoPair } from "@/components/catalog/ProductPhotoPair";
+import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/ui/ButtonLink";
-import { ProductModelViewer } from "@/components/ui/ProductModelViewer";
 import { StructuredData } from "@/components/ui/StructuredData";
 import { createPageMetadata } from "@/lib/metadata";
 import { getProduct, products } from "@/lib/products";
+import { salesItemPath, salesItemsOf } from "@/lib/sales-items";
 import { productEntity } from "@/lib/structured-data";
 import { absoluteUrl, getWhatsAppUrl, siteConfig } from "@/lib/site-config";
 
@@ -35,6 +34,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) notFound();
 
   const productUrl = absoluteUrl(`/produtos/${product.slug}`);
+  const items = salesItemsOf(product.slug);
   const productSchema = siteConfig.siteUrl
     ? [
         {
@@ -91,25 +91,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <Link href="/">Início</Link><span>/</span><Link href="/produtos">Produtos</Link><span>/</span><Link href={`/solucoes/${product.categorySlug}`}>{product.category}</Link><span>/</span><span>{product.name}</span>
         </div>
         <div className="shell product-detail__grid">
-          <div className={`product-detail__visual${product.model3d ? " product-detail__visual--3d" : ""}`}>
-            {product.model3d ? (
-              <ProductModelViewer
-                src={product.model3d}
-                name={product.name}
-                variant={product.modelVariant}
-              />
-            ) : product.companionImage ? (
-              <ProductPhotoPair product={product} />
-            ) : product.image ? (
-              <Image src={product.image} alt={product.name} fill sizes="(max-width: 900px) 100vw, 50vw" priority unoptimized />
-            ) : (
-              <div className="product-detail__typographic" aria-label={`Apresentação tipográfica de ${product.name}`}>
-                <span>{product.visualLabel ?? product.category}</span>
-                <i aria-hidden="true" />
-                <small>Imagem oficial não disponibilizada</small>
-              </div>
-            )}
-          </div>
+          <ProductVisual product={product} />
 
           <div className="product-detail__copy">
             <p className="eyebrow eyebrow--light">{product.category}</p>
@@ -160,6 +142,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             ) : null}
             {product.applications?.length ? (
               <div className="product-detail__list"><h2>Aplicações</h2><ul>{product.applications.map((item) => <li key={item}>{item}</li>)}</ul></div>
+            ) : null}
+            {items.length ? (
+              <div className="product-detail__list"><h2>Pedir por medida</h2><ul>{items.map((item) => <li key={item.id}><Link href={salesItemPath(item)}>{item.title}</Link></li>)}</ul></div>
             ) : null}
             <div className="product-detail__actions">
               <ButtonLink

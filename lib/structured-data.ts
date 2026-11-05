@@ -1,4 +1,5 @@
 import type { Product } from "./products";
+import { salesItemPath, type SalesItem } from "./sales-items";
 import { absoluteUrl, siteConfig } from "./site-config";
 
 export function productEntity(product: Product) {
@@ -20,7 +21,33 @@ export function productEntity(product: Product) {
         value: `${group.configuration}${group.heights?.length ? ` · Alturas: ${group.heights.join(" / ")} mm` : ""}`,
       })),
     } : {}),
-    // This catalog has no public prices or genuine reviews. Never fabricate offers/ratings.
+    // Family pages have no public prices or genuine reviews. Offers live on priced item pages only.
+  };
+}
+
+export function salesItemEntity(item: SalesItem) {
+  const url = absoluteUrl(salesItemPath(item));
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${url}#product`,
+    name: item.title,
+    description: item.summary,
+    url,
+    sku: item.id,
+    category: item.category,
+    brand: { "@type": "Brand", name: item.brand },
+    ...(item.image ? { image: [absoluteUrl(item.image)] } : {}),
+    ...(item.mpn ? { mpn: item.mpn } : {}),
+    ...(item.gtin ? { gtin: item.gtin } : {}),
+    offers: {
+      "@type": "Offer",
+      url,
+      price: item.priceBRL.toFixed(2),
+      priceCurrency: "BRL",
+      itemCondition: "https://schema.org/NewCondition",
+      availability: item.availability === "in_stock" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
   };
 }
 

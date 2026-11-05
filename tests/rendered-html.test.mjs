@@ -158,6 +158,13 @@ test("renders catalog and product detail routes", async () => {
   const missing = await render("/produtos/produto-inexistente");
   assert.equal(missing.status, 404);
 
+  const unpricedItem = await render("/produtos/mini-pilar-he/he-4-1-altura-3-mm");
+  assert.equal(unpricedItem.status, 404);
+  const feed = await fetch(`${baseUrl}/merchant-feed.tsv`);
+  assert.equal(feed.status, 200);
+  assert.match(feed.headers.get("content-type") ?? "", /^text\/tab-separated-values/);
+  assert.match(await feed.text(), /^id\ttitle\t/);
+
   const endodonticProduct = await render("/produtos/limas-rotatorias");
   assert.equal(endodonticProduct.status, 200);
   assert.match(await endodonticProduct.text(), /\/models\/limas-meshy-compatible\.glb/i);
