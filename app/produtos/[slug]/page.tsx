@@ -9,6 +9,7 @@ import { getProduct, products } from "@/lib/products";
 import { salesItemPath, salesItemsOf } from "@/lib/sales-items";
 import { productEntity } from "@/lib/structured-data";
 import { absoluteUrl, getWhatsAppUrl, siteConfig } from "@/lib/site-config";
+import "./product-page.css";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
