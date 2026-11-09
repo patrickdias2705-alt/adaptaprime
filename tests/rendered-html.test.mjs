@@ -128,7 +128,8 @@ test("renders catalog and product detail routes", async () => {
   assert.match(html, /Mini Pilar CM/i);
   assert.match(html, /Modelo 3D interativo do Mini Pilar CM/i);
   assert.match(html, /\/models\/mini-pilar-reto-fast\.glb/i);
-  assert.match(html, /Altura gengival \/ transmucosa/i);
+  assert.match(html, /Medidas disponíveis/i);
+  assert.match(html, /Cone Morse \(CM\)/i);
   assert.match(html, /0,8[\s\S]{0,80}1,5[\s\S]{0,80}2,5[\s\S]{0,80}3,5[\s\S]{0,80}4,5[\s\S]{0,80}5,5/i);
   assert.match(html, /Falar sobre este produto/i);
   assert.doesNotMatch(html, /R\$|Adicionar ao carrinho|Comprar agora/i);

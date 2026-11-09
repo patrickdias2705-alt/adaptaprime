@@ -36,6 +36,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const productUrl = absoluteUrl(`/produtos/${product.slug}`);
   const items = salesItemsOf(product.slug);
+  const isMiniPilar = product.slug.startsWith("mini-pilar");
   const whatsappRequest = product.technicalData
     ? "Quero confirmar conexão, altura transmucosa, aplicação e disponibilidade deste produto."
     : "Quero confirmar aplicação, compatibilidade e disponibilidade deste produto.";
@@ -111,12 +112,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p>{product.description}</p>
             <div className="product-detail__notice">
               <span aria-hidden="true" />
-              Confirme indicação, conexão e compatibilidade com nossa equipe.
+              {isMiniPilar
+                ? "Não sabe a medida? Mande sua dúvida no WhatsApp que a gente confirma."
+                : "Confirme indicação, conexão e compatibilidade com nossa equipe."}
             </div>
             <ul className="product-detail__assurances">
               <li>Envio para todo o Brasil</li>
               <li>Atendimento técnico pelo WhatsApp</li>
-              {product.slug.startsWith("mini-pilar") ? <li>Opções compatíveis com implantes Neodent</li> : null}
+              {isMiniPilar ? <li>Opções compatíveis com implantes Neodent</li> : null}
             </ul>
           </div>
 
@@ -127,14 +130,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <section className="product-technical" aria-labelledby="product-technical-title">
                 <div className="product-technical__heading">
                   <div>
-                    <p>Leitura técnica</p>
-                    <h2 id="product-technical-title">Altura gengival / transmucosa</h2>
+                    <h2 id="product-technical-title">Medidas disponíveis</h2>
                   </div>
                   <span>mm</span>
                 </div>
-                <p className="product-technical__intro">
-                  O valor identifica a altura declarada para cada combinação de conexão, plataforma e angulação.
-                </p>
                 <div className="product-technical__groups">
                   {product.technicalData.groups.map((group) => (
                     <article className="product-technical__group" key={`${group.connection}-${group.configuration}`}>
@@ -155,7 +154,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
                 <p className="product-technical__note">
                   <span aria-hidden="true">i</span>
-                  {product.technicalData.note} Medidas organizadas a partir de documentação técnica oficial de referência; confirme disponibilidade comercial com a Adapta Prime.
+                  Alturas em mm. Confirmamos medida e disponibilidade antes do envio.
                 </p>
               </section>
             ) : null}

@@ -8,7 +8,6 @@ export type ProductTechnicalGroup = {
 export type ProductTechnicalData = {
   summary: string;
   groups: ProductTechnicalGroup[];
-  note: string;
 };
 
 export type Product = {
@@ -38,7 +37,7 @@ export const products: Product[] = [
     model3d: "/models/mini-pilar-reto-fast.glb",
     modelVariant: "reto",
     description:
-      "Componente para composições protéticas que pedem avaliação criteriosa de conexão e aplicação.",
+      "Mini pilar reto para implantes Cone Morse (CM). Alturas de 0,8 a 5,5 mm.",
     technicalData: {
       summary: "Alturas gengivais de 0,8 a 5,5 mm",
       groups: [
@@ -48,8 +47,6 @@ export const products: Product[] = [
           heights: ["0,8", "1,5", "2,5", "3,5", "4,5", "5,5"],
         },
       ],
-      note:
-        "A altura gengival deve ser confirmada junto com a conexão e o espaço interoclusal do caso.",
     },
     featured: true,
   },
@@ -60,7 +57,7 @@ export const products: Product[] = [
     categorySlug: "componentes-proteticos",
     image: "/products/featured/mini-pilar-he-reto.webp",
     description:
-      "Mini pilar reto para conexão hexágono externo (HE). A seleção considera a plataforma e a altura transmucosa.",
+      "Mini pilar reto para hexágono externo (HE). Plataformas de 3,3, 4,1 e 5,0 mm.",
     technicalData: {
       summary: "Alturas organizadas por plataforma HE",
       groups: [
@@ -80,8 +77,6 @@ export const products: Product[] = [
           heights: ["1", "2", "3"],
         },
       ],
-      note:
-        "Em HE, a faixa muda conforme o diâmetro da plataforma; por isso a medida nunca deve ser lida sem a plataforma correspondente.",
     },
     featured: true,
   },
@@ -94,7 +89,7 @@ export const products: Product[] = [
     model3d: "/models/mini-pilar-angulado-fast.glb",
     modelVariant: "angulado",
     description:
-      "Alternativa de componente cuja seleção considera conexão, angulação e objetivo protético.",
+      "Mini pilar angulado de 17° ou 30° para conexões CM, HE, GM e Straumann.",
     technicalData: {
       summary: "Altura combinada com conexão e angulação",
       groups: [
@@ -124,8 +119,6 @@ export const products: Product[] = [
           note: "A altura muda conforme a família e o tipo de pilar. Informe a plataforma para receber a combinação correta.",
         },
       ],
-      note:
-        "Nos modelos angulados, altura, grau e plataforma formam uma única especificação. Confirme os três dados antes da seleção.",
     },
     featured: true,
   },
