@@ -39,7 +39,8 @@ export function ProductModelViewer({
   const [fullscreenAvailable, setFullscreenAvailable] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fallbackExpanded, setFallbackExpanded] = useState(false);
-  const [touchAction, setTouchAction] = useState<"pan-y" | "none">("pan-y");
+  // Outside fullscreen a vertical swipe must keep scrolling the page on phones.
+  const touchAction = isFullscreen || fallbackExpanded ? "none" : "pan-y";
   const [isInteracting, setIsInteracting] = useState(false);
 
   useEffect(() => {
@@ -57,15 +58,6 @@ export function ProductModelViewer({
       window.cancelAnimationFrame(initialStateFrame);
       document.removeEventListener("fullscreenchange", handleFullscreen);
     };
-  }, []);
-
-  useEffect(() => {
-    const coarsePointer = window.matchMedia("(hover: none) and (pointer: coarse)");
-    const syncTouchAction = () => setTouchAction(coarsePointer.matches ? "none" : "pan-y");
-
-    syncTouchAction();
-    coarsePointer.addEventListener("change", syncTouchAction);
-    return () => coarsePointer.removeEventListener("change", syncTouchAction);
   }, []);
 
   useEffect(() => {

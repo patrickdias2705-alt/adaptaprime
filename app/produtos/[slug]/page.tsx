@@ -35,6 +35,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const productUrl = absoluteUrl(`/produtos/${product.slug}`);
   const items = salesItemsOf(product.slug);
+  const whatsappRequest = product.technicalData
+    ? "Quero confirmar conexão, altura transmucosa, aplicação e disponibilidade deste produto."
+    : "Quero confirmar aplicação, compatibilidade e disponibilidade deste produto.";
+  const contactButton = (origin: string) => (
+    <ButtonLink
+      href={getWhatsAppUrl({ origin, interest: product.name, request: whatsappRequest })}
+      leadSource={origin}
+      leadStage="product"
+      leadInterest={product.name}
+    >
+      Falar sobre este produto
+    </ButtonLink>
+  );
   const productSchema = siteConfig.siteUrl
     ? [
         {
@@ -90,10 +103,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="shell product-detail__breadcrumb" aria-label="Navegação estrutural">
           <Link href="/">Início</Link><span>/</span><Link href="/produtos">Produtos</Link><span>/</span><Link href={`/solucoes/${product.categorySlug}`}>{product.category}</Link><span>/</span><span>{product.name}</span>
         </div>
-        <div className="shell product-detail__grid">
-          <ProductVisual product={product} />
-
-          <div className="product-detail__copy">
+        <div className="shell product-detail__grid product-detail__grid--split">
+          <div className="product-detail__copy product-detail__intro">
             <p className="eyebrow eyebrow--light">{product.category}</p>
             <h1>{product.name}</h1>
             <p>{product.description}</p>
@@ -101,6 +112,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <span aria-hidden="true" />
               Confirme indicação, conexão e compatibilidade com nossa equipe.
             </div>
+            <ul className="product-detail__assurances">
+              <li>Envio para todo o Brasil</li>
+              <li>Atendimento técnico pelo WhatsApp</li>
+              {product.slug.startsWith("mini-pilar") ? <li>Opções compatíveis com implantes Neodent</li> : null}
+            </ul>
+          </div>
+
+          <ProductVisual product={product} />
+
+          <div className="product-detail__copy product-detail__details">
             {product.technicalData ? (
               <section className="product-technical" aria-labelledby="product-technical-title">
                 <div className="product-technical__heading">
@@ -147,25 +168,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="product-detail__list"><h2>Pedir por medida</h2><ul>{items.map((item) => <li key={item.id}><Link href={salesItemPath(item)}>{item.title}</Link></li>)}</ul></div>
             ) : null}
             <div className="product-detail__actions">
-              <ButtonLink
-                href={getWhatsAppUrl({
-                  origin: `Página de produto > ${product.name}`,
-                  interest: product.name,
-                  request: product.technicalData
-                    ? "Quero confirmar conexão, altura transmucosa, aplicação e disponibilidade deste produto."
-                    : "Quero confirmar aplicação, compatibilidade e disponibilidade deste produto.",
-                })}
-                leadSource={`Página de produto > ${product.name}`}
-                leadStage="product"
-                leadInterest={product.name}
-              >
-                Falar sobre este produto
-              </ButtonLink>
+              {contactButton(`Página de produto > ${product.name}`)}
               <ButtonLink href="/produtos" variant="secondary">Voltar ao catálogo</ButtonLink>
             </div>
           </div>
         </div>
       </section>
+      <div className="product-detail__sticky">{contactButton(`Página de produto > ${product.name} > Barra fixa`)}</div>
     </>
   );
 }

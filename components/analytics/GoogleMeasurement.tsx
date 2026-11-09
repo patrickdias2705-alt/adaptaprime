@@ -12,6 +12,7 @@ export function GoogleMeasurement() {
   const [open, setOpen] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [advertising, setAdvertising] = useState(false);
+  const [detailed, setDetailed] = useState(false);
 
   useEffect(() => {
     const reflectChoice = (choice: ConsentChoice | null, show = !choice) => {
@@ -21,7 +22,10 @@ export function GoogleMeasurement() {
     };
     const frame = requestAnimationFrame(() => reflectChoice(restoreMeasurementConsent()));
     const ready = () => reportPage(window.location.pathname);
-    const preferences = () => reflectChoice(restoreMeasurementConsent(), true);
+    const preferences = () => {
+      setDetailed(true);
+      reflectChoice(restoreMeasurementConsent(), true);
+    };
     const storage = (event: StorageEvent) => {
       if (event.key !== consentKey && event.key !== null) return;
       // Use the incoming value, including a deletion, rather than an older cookie.
@@ -51,11 +55,23 @@ export function GoogleMeasurement() {
     setAnalytics(allowAnalytics);
     setAdvertising(allowAdvertising);
     setOpen(false);
+    setDetailed(false);
     // Native consent updates are applied at the end of the GTM tag's current event.
     window.setTimeout(() => reportPage(pathname), 0);
   }
 
   if (!open || !gtmId) return null;
+  // The first notice stays small so it does not cover the page or the WhatsApp button on phones.
+  if (!detailed) {
+    return <section className={styles.bar} aria-label="Aviso de privacidade" data-consent-panel="true">
+      <p>Usamos cookies opcionais para medir visitas e anúncios. <Link href="/politica-de-privacidade#cookies">Política de Privacidade</Link></p>
+      <div className={styles.actions}>
+        <button type="button" onClick={() => save(false, false)}>Recusar</button>
+        <button type="button" onClick={() => setDetailed(true)}>Opções</button>
+        <button type="button" onClick={() => save(true, true)}>Aceitar</button>
+      </div>
+    </section>;
+  }
   return <section className={styles.panel} aria-labelledby="privacy-preferences-title" aria-describedby="privacy-preferences-description" data-consent-panel="true">
     <h2 id="privacy-preferences-title">Sua privacidade, sua escolha</h2>
     <p id="privacy-preferences-description">Usamos dados opcionais para entender a navegação e medir o resultado dos anúncios. Você pode recusar e continuar usando o site. <Link href="/politica-de-privacidade#cookies">Política de Privacidade</Link></p>
