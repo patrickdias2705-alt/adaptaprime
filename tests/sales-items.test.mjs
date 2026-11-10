@@ -78,22 +78,18 @@ test("item schema carries the offer the team supplied", () => {
   assert.equal(schema.offers.availability, "https://schema.org/InStock");
 });
 
-test("the WhatsApp origin names the campaign only for Google traffic and only once", () => {
-  const { campaignOriginLabel, addCampaignOrigin, getWhatsAppUrl } = loadHelper("lib/site-config.ts");
-  assert.equal(campaignOriginLabel("?utm_source=google&utm_medium=cpc&utm_campaign=x"), "Google Ads");
-  assert.equal(campaignOriginLabel("?utm_source=google&utm_medium=shopping"), "Google Shopping");
-  assert.equal(campaignOriginLabel("?gclid=abc"), "Google Ads");
-  assert.equal(campaignOriginLabel("?email=private@example.com"), "");
-  assert.equal(campaignOriginLabel(""), "");
-
-  const href = getWhatsAppUrl({ origin: "Página de produto > Mini Pilar HE", interest: "Mini Pilar HE" });
-  assert.equal(addCampaignOrigin(href, ""), href);
-  const once = addCampaignOrigin(href, "Google Ads");
-  const text = new URL(once).searchParams.get("text");
-  assert.match(text, /Origem do contato: Google Ads > Página de produto > Mini Pilar HE\./);
-  assert.match(text, /Interesse: Mini Pilar HE\./);
-  assert.equal(addCampaignOrigin(once, "Google Ads"), once);
-  assert.equal(new URL(once).hostname, "wa.me");
+test("WhatsApp opens with one human sentence: came from the site and what they want", () => {
+  const { getWhatsAppUrl } = loadHelper("lib/site-config.ts");
+  const text = href => new URL(href).searchParams.get("text");
+  assert.equal(new URL(getWhatsAppUrl()).hostname, "wa.me");
+  assert.equal(text(getWhatsAppUrl()), "Olá! Vim pelo site e quero falar com um especialista.");
+  assert.equal(text(getWhatsAppUrl("quero um orçamento de Mini Pilar HE")), "Olá! Vim pelo site e quero um orçamento de Mini Pilar HE.");
+  assert.equal(text(getWhatsAppUrl("Vocês entregam na minha cidade?")), "Olá! Vim pelo site e vocês entregam na minha cidade?");
+  // Free text from the old /contato?mensagem= links: greeting stripped, sentence kept.
+  assert.equal(text(getWhatsAppUrl("Olá, gostaria de um orçamento")), "Olá! Vim pelo site e gostaria de um orçamento.");
+  assert.equal(text(getWhatsAppUrl("Oitenta unidades do kit")), "Olá! Vim pelo site e oitenta unidades do kit.");
+  assert.equal(text(getWhatsAppUrl("Olá!")), "Olá! Vim pelo site e quero falar com um especialista.");
+  assert.doesNotMatch(text(getWhatsAppUrl("quero um orçamento de Mini Pilar CM")), /Origem|Interesse|Google|\[|\n/);
 });
 
 test("product and category content stays above the fixed background wave", () => {
@@ -110,14 +106,14 @@ test("product and category content stays above the fixed background wave", () =>
 test("the quote names the measure the dentist picked, so sales can answer without asking again", () => {
   const { quoteInterest, getProduct } = loadHelper("lib/products.ts");
   const cm = getProduct("mini-pilar-cm");
-  assert.equal(quoteInterest(cm.name), "Mini Pilar CM");
-  assert.equal(
-    quoteInterest(cm.name, cm.technicalData.groups[0], "2,5"),
-    "Mini Pilar CM — CM · Reto · plataforma protética Ø 4,8 mm · altura 2,5 mm",
-  );
-  const straumann = getProduct("mini-pilar-angulado").technicalData.groups.find(group => !group.heights);
-  assert.equal(
-    quoteInterest("Mini Pilar Angulado", straumann),
-    "Mini Pilar Angulado — Straumann · Seleção por plataforma NC, RC, RB ou WB",
-  );
+  assert.equal(quoteInterest(cm), "Mini Pilar CM");
+  assert.equal(quoteInterest(cm, cm.technicalData.groups[0], "2,5"), "Mini Pilar CM (altura 2,5 mm)");
+  const he = getProduct("mini-pilar-he");
+  assert.equal(quoteInterest(he, he.technicalData.groups[1], "2"), "Mini Pilar HE (HE SF Ø 4,1, altura 2 mm)");
+  const angled = getProduct("mini-pilar-angulado");
+  const [he17, he30] = angled.technicalData.groups.filter(group => group.connection === "HE");
+  assert.equal(quoteInterest(angled, he17, "2"), "Mini Pilar Angulado (HE 17° · Ø 3,3 / Ø 4,1, altura 2 mm)");
+  assert.notEqual(quoteInterest(angled, he30, "3"), quoteInterest(angled, he17, "3"));
+  const straumann = angled.technicalData.groups.find(group => !group.heights);
+  assert.equal(quoteInterest(angled, straumann), "Mini Pilar Angulado (Straumann)");
 });

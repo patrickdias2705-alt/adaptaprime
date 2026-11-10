@@ -37,9 +37,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const productUrl = absoluteUrl(`/produtos/${product.slug}`);
   const items = salesItemsOf(product.slug);
   const isMiniPilar = product.slug.startsWith("mini-pilar");
-  const whatsappRequest = product.technicalData
-    ? "Quero confirmar conexão, altura transmucosa, aplicação e disponibilidade deste produto."
-    : "Quero confirmar aplicação, compatibilidade e disponibilidade deste produto.";
   const productSchema = siteConfig.siteUrl
     ? [
         {
@@ -131,7 +128,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {items.length ? (
               <div className="product-detail__list"><h2>Pedir por medida</h2><ul>{items.map((item) => <li key={item.id}><Link href={salesItemPath(item)}>{item.title}</Link></li>)}</ul></div>
             ) : null}
-            <ProductQuote product={product} request={whatsappRequest} />
+            <ProductQuote product={product} />
           </div>
         </div>
       </section>

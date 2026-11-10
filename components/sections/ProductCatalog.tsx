@@ -22,13 +22,9 @@ export function ProductCatalog({ initialCategory = "todos" }: { initialCategory?
   const selectionOrigin = selectedCategory
     ? `Catálogo de produtos > Categoria ${selectedCategory.name}`
     : "Catálogo de produtos > Ajuda para escolher";
-  const whatsappHref = getWhatsAppUrl({
-    origin: selectionOrigin,
-    interest: selectedCategory?.name,
-    request: selectedCategory
-      ? `Quero conhecer as opções de ${selectedCategory.name} e entender qual atende melhor à minha necessidade.`
-      : "Ainda não sei qual categoria escolher e quero orientação da equipe.",
-  });
+  const whatsappHref = getWhatsAppUrl(selectedCategory
+    ? `Quero conhecer as opções de ${selectedCategory.name}.`
+    : "Quero ajuda para escolher os produtos certos.");
   const whatsappExternal = whatsappHref.startsWith("http");
 
   function selectCategory(slug: string) {

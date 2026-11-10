@@ -182,8 +182,13 @@ export function getProduct(slug: string) {
   return products.find((product) => product.slug === slug);
 }
 
-export function quoteInterest(productName: string, group?: ProductTechnicalGroup, height?: string) {
-  if (!group) return productName;
-  const measure = [group.connection, group.configuration, height ? `altura ${height} mm` : null];
-  return `${productName} — ${measure.filter(Boolean).join(" · ")}`;
+export function quoteInterest(product: Pick<Product, "name" | "technicalData">, group?: ProductTechnicalGroup, height?: string) {
+  if (!group) return product.name;
+  const groups = product.technicalData?.groups ?? [];
+  // Skip what the product name already says; keep configuration only when two rows share a connection (HE 17° vs 30°).
+  const showConnection = !(groups.length === 1 && product.name.includes(group.connection));
+  const ambiguous = groups.filter((item) => item.connection === group.connection).length > 1;
+  const connection = showConnection ? [group.connection, ambiguous ? group.configuration : null].filter(Boolean).join(" ") : null;
+  const details = [connection, height ? `altura ${height} mm` : null].filter(Boolean);
+  return details.length ? `${product.name} (${details.join(", ")})` : product.name;
 }

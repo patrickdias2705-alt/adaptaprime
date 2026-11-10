@@ -6,12 +6,11 @@ import { getWhatsAppUrl } from "@/lib/site-config";
 
 type ProductQuoteProps = {
   product: Pick<Product, "name" | "technicalData">;
-  request: string;
 };
 
 type Selection = { group: number; height?: string };
 
-export function ProductQuote({ product, request }: ProductQuoteProps) {
+export function ProductQuote({ product }: ProductQuoteProps) {
   const groups = product.technicalData?.groups ?? [];
   const [pick, setPick] = useState<Selection | null>(null);
   const [inlineVisible, setInlineVisible] = useState(false);
@@ -35,13 +34,7 @@ export function ProductQuote({ product, request }: ProductQuoteProps) {
   }
 
   function cta(source: string, className = "") {
-    const href = getWhatsAppUrl({
-      origin: source,
-      interest: quoteInterest(product.name, group, pick?.height),
-      request: group
-        ? "Quero cotar esta medida e confirmar compatibilidade e disponibilidade."
-        : request,
-    });
+    const href = getWhatsAppUrl(`quero um orçamento de ${quoteInterest(product, group, pick?.height)}`);
 
     return (
       <a

@@ -31,12 +31,11 @@ O comando padrão de build usa `next build`, que é o fluxo nativo esperado pela
 Copie `.env.example` para `.env.local` e configure:
 
 - `NEXT_PUBLIC_SITE_URL`: domínio final do site, sem barra no fim. Exemplo: `https://adaptaprime.com.br`.
-- `NEXT_PUBLIC_WHATSAPP`: número comercial no formato internacional, somente números. O padrão do projeto é `5531992190003` (`31 99219-0003`).
 - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`: token do Google Search Console, opcional.
 
 Na ausência de `NEXT_PUBLIC_SITE_URL`, o projeto usa automaticamente `VERCEL_PROJECT_PRODUCTION_URL` ou `VERCEL_URL` quando disponível na Vercel.
 
-Na ausência de `NEXT_PUBLIC_WHATSAPP`, todos os CTAs usam `5531992190003`. As mensagens também recebem automaticamente o identificador `[Contato via site Adapta Prime]`.
+Todos os CTAs usam um único WhatsApp, `553175255290` (`31 7525-5290`), fixo em `lib/site-config.ts`. Cada mensagem é uma frase só, dizendo que veio do site e o que a pessoa quer (ex.: "Olá! Vim pelo site e quero um orçamento de Mini Pilar CM (altura 2,5 mm)."). Origem, botão e campanha são medidos pelo evento `whatsapp_click`, não aparecem no texto.
 
 ## Deploy na Vercel
 

@@ -31,11 +31,7 @@ export const seoFaqItems = [
 ] as const;
 
 export function SeoFaq() {
-  const faqWhatsappHref = getWhatsAppUrl({
-    origin: "Início > Dúvidas frequentes",
-    interest: "Dúvida sobre produtos",
-    request: "Tenho uma dúvida e quero conversar com a equipe.",
-  });
+  const faqWhatsappHref = getWhatsAppUrl("Tenho uma dúvida sobre os produtos.");
   const faqWhatsappExternal = faqWhatsappHref.startsWith("http");
 
   return (

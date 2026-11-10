@@ -7,7 +7,7 @@ import { getLeadPageLabel, getWhatsAppUrl } from "@/lib/site-config";
 export function FloatingContact() {
   const pathname = usePathname();
   const origin = `${getLeadPageLabel(pathname)} > Botão flutuante`;
-  const href = getWhatsAppUrl({ origin, request: "Quero falar com um especialista da Adapta Prime." });
+  const href = getWhatsAppUrl();
   const external = href.startsWith("http");
 
   return (

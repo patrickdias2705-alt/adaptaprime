@@ -75,8 +75,8 @@ test("server-renders the institutional home", async () => {
   assert.match(html, /Dúvidas frequentes/i);
   assert.match(html, /data-whatsapp-cta="true"/i);
   assert.match(html, /data-lead-stage="discovery"/i);
-  assert.match(html, /href="https:\/\/wa\.me\/5531992190003\?text=/i);
-  assert.match(html, /%5BContato%20via%20site%20Adapta%20Prime%5D/i);
+  assert.match(html, /href="https:\/\/wa\.me\/553175255290\?text=/i);
+  assert.match(html, /text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20/i);
   assert.match(html, /src="\/brand\/adapta-prime-symbol-mobile\.png"/i);
   assert.doesNotMatch(html, /_next\/image[^\"]*adapta-prime-symbol-mobile/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -88,7 +88,7 @@ test("redirects the legacy contact route straight to WhatsApp", async () => {
   assert.equal(response.status, 307);
   assert.match(
     response.headers.get("location") ?? "",
-    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D/i,
+    /^https:\/\/wa\.me\/553175255290\?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20falar%20com%20um%20especialista\.$/i,
   );
 
   const customMessageResponse = await render(
@@ -97,7 +97,7 @@ test("redirects the legacy contact route straight to WhatsApp", async () => {
   assert.equal(customMessageResponse.status, 307);
   assert.match(
     customMessageResponse.headers.get("location") ?? "",
-    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D%0AGostaria%20de%20um%20or%C3%A7amento$/i,
+    /^https:\/\/wa\.me\/553175255290\?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20um%20or%C3%A7amento\.$/i,
   );
 });
 
@@ -222,7 +222,7 @@ test("serves complete, indexable legal pages and the official brand favicon", as
     assert.match(html, /<nav[^>]*aria-label="Índice:/);
     assert.match(html, /datetime="2026-10-28"/i);
     assert.match(html, /<meta name="robots" content="index, follow"/);
-    assert.match(html, /href="https:\/\/wa\.me\/5531992190003/);
+    assert.match(html, /href="https:\/\/wa\.me\/553175255290/);
     assert.doesNotMatch(html, /Conteúdo jurídico em revisão|Esta página está reservada|noindex/);
     for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) {
       assert.ok(html.includes(`id="${id}"`), `Missing anchor ${id} on ${path}`);

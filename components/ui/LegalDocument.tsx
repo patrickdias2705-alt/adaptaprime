@@ -35,7 +35,7 @@ export function LegalDocument({ title, description, sections }: { title: string;
             <aside className={styles.contact}>
               <h2>Fale com a Adapta Prime</h2>
               <p>Para dúvidas sobre estes documentos ou solicitações relacionadas a dados pessoais, utilize nosso canal de atendimento.</p>
-              <a href={getWhatsAppUrl("Olá! Gostaria de falar sobre privacidade ou termos de uso da Adapta Prime.")} target="_blank" rel="noreferrer">WhatsApp: +{siteConfig.whatsapp.replace(/\D/g, "")}</a>
+              <a href={getWhatsAppUrl("Quero falar sobre privacidade ou termos de uso.")} target="_blank" rel="noreferrer">WhatsApp: +{siteConfig.whatsapp.replace(/\D/g, "")}</a>
               <p><Link href="/politica-de-privacidade">Política de Privacidade</Link> · <Link href="/termos-de-uso">Termos de Uso</Link></p>
             </aside>
           </div>

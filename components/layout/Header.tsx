@@ -12,10 +12,7 @@ import { BrandLogo } from "./BrandLogo";
 export function Header() {
   const pathname = usePathname();
   const headerOrigin = `${getLeadPageLabel(pathname)} > Cabeçalho`;
-  const headerWhatsappHref = getWhatsAppUrl({
-    origin: headerOrigin,
-    request: "Quero falar com um especialista da Adapta Prime.",
-  });
+  const headerWhatsappHref = getWhatsAppUrl();
   const headerWhatsappExternal = headerWhatsappHref.startsWith("http");
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
