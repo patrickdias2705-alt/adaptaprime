@@ -7,10 +7,7 @@ import { BrandLogo } from "./BrandLogo";
 export function Footer() {
   const year = new Date().getFullYear();
   const footerOrigin = "Rodapé > Atendimento";
-  const footerWhatsappHref = getWhatsAppUrl({
-    origin: footerOrigin,
-    request: "Quero iniciar uma conversa com a equipe da Adapta Prime.",
-  });
+  const footerWhatsappHref = getWhatsAppUrl();
   const footerWhatsappExternal = footerWhatsappHref.startsWith("http");
 
   return (

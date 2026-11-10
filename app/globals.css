@@ -3829,7 +3829,7 @@ img {
   list-style: none;
 }
 
-.product-technical__group li {
+.product-technical__pick {
   display: inline-flex;
   align-items: baseline;
   gap: 0.2rem;
@@ -3842,17 +3842,17 @@ img {
   font-variant-numeric: tabular-nums;
 }
 
-.product-technical__group li strong {
+.product-technical__pick strong {
   font-size: 0.76rem;
   font-weight: 700;
 }
 
-.product-technical__group li span {
+.product-technical__pick span {
   color: rgba(226, 237, 245, 0.5);
   font-size: 0.56rem;
 }
 
-.product-technical__group > p {
+.product-technical__group p {
   color: rgba(226, 237, 245, 0.65);
   font-size: 0.7rem;
   line-height: 1.6;
@@ -4482,11 +4482,10 @@ img {
     border-radius: 50%;
     background:
       radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.14), transparent 42%),
-      rgba(3, 14, 23, 0.58);
+      rgba(3, 14, 23, 0.78);
     box-shadow:
       0 10px 28px rgba(0, 0, 0, 0.22),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(14px) saturate(1.25);
     cursor: pointer;
     transition: border-color 180ms ease, background 180ms ease, box-shadow 220ms ease;
   }
@@ -4523,8 +4522,7 @@ img {
     height: 100%;
     padding: 0;
     border: 0;
-    background: rgba(0, 4, 8, 0.64);
-    backdrop-filter: blur(7px) saturate(0.85);
+    background: rgba(0, 4, 8, 0.74);
     cursor: pointer;
   }
 
@@ -4542,13 +4540,13 @@ img {
     background:
       radial-gradient(circle at 88% 8%, rgba(0, 153, 255, 0.28), transparent 34%),
       radial-gradient(circle at 12% 78%, rgba(0, 89, 153, 0.22), transparent 38%),
-      linear-gradient(155deg, rgba(20, 40, 55, 0.76), rgba(2, 10, 17, 0.91) 58%, rgba(1, 6, 11, 0.96));
+      linear-gradient(155deg, #13283a, #030c14 58%, #01060b);
     box-shadow:
       -24px 0 68px rgba(0, 0, 0, 0.48),
       inset 1px 0 0 rgba(255, 255, 255, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(28px) saturate(1.45);
-    transform-origin: right center;
+    contain: layout paint;
+    will-change: transform;
   }
 
   .mobile-menu__panel::before {
@@ -4571,10 +4569,9 @@ img {
     border: 1px solid rgba(96, 194, 255, 0.16);
     border-radius: 42% 58% 63% 37% / 56% 38% 62% 44%;
     background: radial-gradient(circle at 38% 38%, rgba(35, 174, 255, 0.18), transparent 62%);
-    filter: blur(1px);
     opacity: 0.76;
     pointer-events: none;
-    animation: mobile-liquid-drift 7s var(--ease-studio) infinite alternate;
+    transform: rotate(-4deg);
   }
 
   .mobile-menu__liquid::after {
@@ -4695,10 +4692,29 @@ img {
     background: rgba(0, 16, 28, 0.2);
   }
 
-  @keyframes mobile-liquid-drift {
-    from { transform: translate3d(0, 0, 0) rotate(-4deg) scale(0.96); }
-    to { transform: translate3d(-8%, 7%, 0) rotate(5deg) scale(1.04); }
+  /* Phones: backdrop blur on fixed or 3D-overlay layers re-renders every scroll/canvas frame. */
+  .site-header--solid {
+    background: rgba(8, 9, 12, 0.96);
+    backdrop-filter: none;
   }
+
+  .floating-contact,
+  .button-link--secondary,
+  .product-stage__actions a,
+  .catalog-card__3d,
+  .product-model-viewer__chrome > span,
+  .product-model-viewer__error,
+  .product-model-viewer__hud > p,
+  .product-model-viewer__controls button {
+    backdrop-filter: none;
+  }
+
+  .button-link--secondary { background: rgba(8, 18, 27, 0.72); }
+  .product-stage__actions a { background: rgba(3, 11, 18, 0.8); }
+  .catalog-card__3d { background: rgba(5, 12, 20, 0.88); }
+  .product-model-viewer__chrome > span,
+  .product-model-viewer__hud > p { background: rgba(4, 9, 14, 0.84); }
+  .product-model-viewer__controls button { background: rgba(4, 9, 14, 0.88); }
 
   .catalog-card { grid-template-columns: 1fr; }
   .catalog-card__visual { min-height: 260px; }

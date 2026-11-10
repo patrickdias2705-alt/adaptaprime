@@ -45,11 +45,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const relatedCategories = categories.filter(
     (item) => item.slug !== category.slug,
   );
-  const categoryWhatsappHref = getWhatsAppUrl({
-    origin: `Página de categoria > ${category.name}`,
-    interest: category.name,
-    request: "Quero conhecer as opções disponíveis nesta categoria.",
-  });
+  const categoryWhatsappHref = getWhatsAppUrl(`Quero conhecer as opções de ${category.name}.`);
   const categoryWhatsappExternal = categoryWhatsappHref.startsWith("http");
 
   const pageUrl = absoluteUrl(`/solucoes/${category.slug}`);

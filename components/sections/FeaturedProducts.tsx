@@ -22,11 +22,7 @@ export function FeaturedProducts() {
   if (!active) return null;
 
   const productOrigin = `Início > Produtos em evidência > ${active.name}`;
-  const productWhatsappHref = getWhatsAppUrl({
-    origin: productOrigin,
-    interest: active.name,
-    request: "Quero confirmar aplicação e disponibilidade deste produto.",
-  });
+  const productWhatsappHref = getWhatsAppUrl(`quero um orçamento de ${active.name}`);
   const productWhatsappExternal = productWhatsappHref.startsWith("http");
   const usesCenteredLayout = centeredFeaturedSlugs.has(active.slug);
 

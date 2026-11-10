@@ -3,11 +3,7 @@ import { getWhatsAppUrl } from "@/lib/site-config";
 
 function HeroWhatsAppCta({ className = "" }: { className?: string }) {
   const origin = "Início > Banner principal";
-  const href = getWhatsAppUrl({
-    origin,
-    interest: "Soluções odontológicas",
-    request: "Quero conhecer as opções da Adapta Prime e falar com um especialista.",
-  });
+  const href = getWhatsAppUrl("Quero conhecer os produtos da Adapta Prime.");
 
   return (
     <Link

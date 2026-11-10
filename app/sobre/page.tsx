@@ -150,11 +150,7 @@ export default function AboutPage() {
             <div className="about-practice__actions">
               <ButtonLink href="/solucoes">Explorar soluções</ButtonLink>
               <ButtonLink
-                href={getWhatsAppUrl({
-                  origin: "Sobre nós > Na rotina",
-                  interest: "Orientação sobre o portfólio",
-                  request: "Quero explicar minha necessidade e entender quais opções fazem sentido.",
-                })}
+                href={getWhatsAppUrl("Quero ajuda para escolher os produtos certos.")}
                 variant="secondary"
                 leadSource="Sobre nós > Na rotina"
                 leadStage="discovery"

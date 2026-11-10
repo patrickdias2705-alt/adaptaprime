@@ -75,8 +75,8 @@ test("server-renders the institutional home", async () => {
   assert.match(html, /Dúvidas frequentes/i);
   assert.match(html, /data-whatsapp-cta="true"/i);
   assert.match(html, /data-lead-stage="discovery"/i);
-  assert.match(html, /href="https:\/\/wa\.me\/5531992190003\?text=/i);
-  assert.match(html, /%5BContato%20via%20site%20Adapta%20Prime%5D/i);
+  assert.match(html, /href="https:\/\/wa\.me\/553175255290\?text=/i);
+  assert.match(html, /text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20/i);
   assert.match(html, /src="\/brand\/adapta-prime-symbol-mobile\.png"/i);
   assert.doesNotMatch(html, /_next\/image[^\"]*adapta-prime-symbol-mobile/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
@@ -88,7 +88,7 @@ test("redirects the legacy contact route straight to WhatsApp", async () => {
   assert.equal(response.status, 307);
   assert.match(
     response.headers.get("location") ?? "",
-    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D/i,
+    /^https:\/\/wa\.me\/553175255290\?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20falar%20com%20um%20especialista\.$/i,
   );
 
   const customMessageResponse = await render(
@@ -97,7 +97,7 @@ test("redirects the legacy contact route straight to WhatsApp", async () => {
   assert.equal(customMessageResponse.status, 307);
   assert.match(
     customMessageResponse.headers.get("location") ?? "",
-    /^https:\/\/wa\.me\/5531992190003\?text=%5BContato%20via%20site%20Adapta%20Prime%5D%0AGostaria%20de%20um%20or%C3%A7amento$/i,
+    /^https:\/\/wa\.me\/553175255290\?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20um%20or%C3%A7amento\.$/i,
   );
 });
 
@@ -131,12 +131,14 @@ test("renders catalog and product detail routes", async () => {
   assert.match(html, /Medidas disponíveis/i);
   assert.match(html, /Cone Morse \(CM\)/i);
   assert.match(html, /0,8[\s\S]{0,80}1,5[\s\S]{0,80}2,5[\s\S]{0,80}3,5[\s\S]{0,80}4,5[\s\S]{0,80}5,5/i);
-  assert.match(html, /Falar sobre este produto/i);
+  assert.match(html, /Cotar no WhatsApp/i);
+  assert.match(html, /Compatível com/i);
+  assert.match(html, /aria-pressed="false"/i, "medidas são botões de escolha");
   assert.doesNotMatch(html, /R\$|Adicionar ao carrinho|Comprar agora/i);
   assert.match(html, /Envio para todo o Brasil/i);
   assert.match(html, /compatíveis com implantes Neodent/i);
   assert.ok(html.indexOf("<h1") < html.indexOf("product-detail__visual"), "nome do produto vem antes do 3D");
-  assert.match(html, /product-detail__sticky[\s\S]{0,300}data-whatsapp-cta="true"/i);
+  assert.match(html, /product-detail__sticky[\s\S]{0,1500}data-whatsapp-cta="true"/i);
 
   const heProduct = await render("/produtos/mini-pilar-he");
   assert.equal(heProduct.status, 200);
@@ -220,7 +222,7 @@ test("serves complete, indexable legal pages and the official brand favicon", as
     assert.match(html, /<nav[^>]*aria-label="Índice:/);
     assert.match(html, /datetime="2026-10-28"/i);
     assert.match(html, /<meta name="robots" content="index, follow"/);
-    assert.match(html, /href="https:\/\/wa\.me\/5531992190003/);
+    assert.match(html, /href="https:\/\/wa\.me\/553175255290/);
     assert.doesNotMatch(html, /Conteúdo jurídico em revisão|Esta página está reservada|noindex/);
     for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) {
       assert.ok(html.includes(`id="${id}"`), `Missing anchor ${id} on ${path}`);

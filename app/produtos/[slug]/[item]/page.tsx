@@ -65,13 +65,7 @@ export default async function SalesItemPage({ params }: ItemPageProps) {
             </div>
             <div className="product-detail__actions">
               <ButtonLink
-                href={getWhatsAppUrl({
-                  origin: `Página de produto > ${item.title}`,
-                  interest: `${item.title} (${item.id})`,
-                  request: inStock
-                    ? "Quero fazer o pedido deste item e confirmar compatibilidade e frete."
-                    : "Quero saber quando este item volta a ter estoque.",
-                })}
+                href={getWhatsAppUrl(inStock ? `quero fazer um pedido de ${item.title}` : `quero saber quando volta o estoque de ${item.title}`)}
                 leadSource={`Página de produto > ${product.name}`}
                 leadStage="product"
                 leadInterest={product.name}

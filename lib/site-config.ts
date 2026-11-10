@@ -8,12 +8,8 @@ const vercelProductionUrl = (
   .trim()
   .replace(/\/+$/, "");
 
-const DEFAULT_WHATSAPP = "5531992190003";
-const WHATSAPP_SITE_IDENTIFIER = "[Contato via site Adapta Prime]";
-
-const configuredWhatsApp = (
-  process.env.NEXT_PUBLIC_WHATSAPP ?? DEFAULT_WHATSAPP
-).trim() || DEFAULT_WHATSAPP;
+// Single sales number on purpose (31 7525-5290, no 9th digit): no env override, so no other number can creep in.
+const WHATSAPP_NUMBER = "553175255290";
 
 export const siteConfig = {
   name: "Adapta Prime",
@@ -32,7 +28,7 @@ export const siteConfig = {
   ogImage: "/og.png",
   googleSiteVerification:
     process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
-  whatsapp: configuredWhatsApp,
+  whatsapp: WHATSAPP_NUMBER,
   email: "",
   instagram: "",
   address: "",
@@ -45,69 +41,16 @@ export const navigation = [
   { label: "Sobre nós", href: "/sobre" },
 ] as const;
 
-export type WhatsAppLeadContext = {
-  origin: string;
-  interest?: string;
-  request?: string;
-};
-
-export function buildWhatsAppMessage({
-  origin,
-  interest,
-  request = "Quero conhecer as opções e receber orientação da equipe.",
-}: WhatsAppLeadContext) {
-  return [
-    WHATSAPP_SITE_IDENTIFIER,
-    "Olá! Vim pelo site da Adapta Prime.",
-    interest ? `Interesse: ${interest}.` : null,
-    request,
-    `Origem do contato: ${origin}.`,
-  ].filter(Boolean).join("\n");
-}
-
-function identifyWhatsAppMessage(message: string) {
-  const trimmedMessage = message.trim();
-
-  if (trimmedMessage.startsWith(WHATSAPP_SITE_IDENTIFIER)) {
-    return trimmedMessage;
-  }
-
-  return [WHATSAPP_SITE_IDENTIFIER, trimmedMessage].filter(Boolean).join("\n");
-}
-
-export function getWhatsAppUrl(input?: string | WhatsAppLeadContext) {
+/**
+ * One human sentence: "Olá! Vim pelo site e quero um orçamento de Mini Pilar CM."
+ * Which button was clicked is measured by the click event, so the text only says what the visitor wants.
+ */
+export function getWhatsAppUrl(request = "quero falar com um especialista") {
   const number = siteConfig.whatsapp.replace(/\D/g, "");
-  const message = typeof input === "string"
-    ? identifyWhatsAppMessage(input)
-    : input
-      ? buildWhatsAppMessage(input)
-      : identifyWhatsAppMessage(
-          "Olá! Quero falar com um especialista da Adapta Prime.",
-        );
-
-  const text = message
-    ? `?text=${encodeURIComponent(message)}`
-    : "";
-
-  return `https://wa.me/${number}${text}`;
-}
-
-const WHATSAPP_ORIGIN_LABEL = "Origem do contato: ";
-
-// Reads only the landing URL and changes only the visitor's own WhatsApp text; nothing reaches Analytics or Ads.
-export function campaignOriginLabel(search: string) {
-  const query = new URLSearchParams(search);
-  if (query.get("utm_source") === "google" && query.get("utm_medium") === "shopping") return "Google Shopping";
-  if (query.has("gclid") || (query.get("utm_source") === "google" && query.get("utm_medium") === "cpc")) return "Google Ads";
-  return "";
-}
-
-export function addCampaignOrigin(whatsappHref: string, label: string) {
-  if (!label) return whatsappHref;
-  const url = new URL(whatsappHref);
-  const text = url.searchParams.get("text");
-  if (!text || !text.includes(WHATSAPP_ORIGIN_LABEL) || text.includes(`${WHATSAPP_ORIGIN_LABEL}${label} > `)) return whatsappHref;
-  return `${url.origin}${url.pathname}?text=${encodeURIComponent(text.replace(WHATSAPP_ORIGIN_LABEL, `${WHATSAPP_ORIGIN_LABEL}${label} > `))}`;
+  const clause = request.trim().replace(/^(olá|ola|oi|bom dia|boa tarde|boa noite)(?=[\s!,.]|$)[\s!,.]*/i, "") || "quero falar com um especialista";
+  const sentence = /[.!?]$/.test(clause) ? clause : `${clause}.`;
+  const text = `Olá! Vim pelo site e ${sentence.charAt(0).toLowerCase()}${sentence.slice(1)}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
 export function getLeadPageLabel(pathname: string) {

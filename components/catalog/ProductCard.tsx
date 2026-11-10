@@ -9,11 +9,7 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product, origin }: ProductCardProps) {
-  const whatsappHref = getWhatsAppUrl({
-    origin: `${origin} > ${product.name}`,
-    interest: product.name,
-    request: "Quero conhecer melhor este produto e confirmar aplicação e disponibilidade.",
-  });
+  const whatsappHref = getWhatsAppUrl(`quero um orçamento de ${product.name}`);
   const external = whatsappHref.startsWith("http");
 
   return (

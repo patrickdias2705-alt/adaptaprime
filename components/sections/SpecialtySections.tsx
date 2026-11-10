@@ -118,11 +118,7 @@ export function ClinicsSection() {
             <span>Atendimento próximo</span>
           </div>
           <ButtonLink
-            href={getWhatsAppUrl({
-              origin: "Início > Atendimento para clínicas",
-              interest: "Atendimento para clínica",
-              request: "Quero conhecer as opções para a rotina da minha clínica.",
-            })}
+            href={getWhatsAppUrl("Quero atendimento para minha clínica.")}
             variant="text"
             leadSource="Início > Atendimento para clínicas"
             leadStage="service"
@@ -152,11 +148,7 @@ export function LogisticsSection() {
             organização e previsibilidade.
           </p>
           <ButtonLink
-            href={getWhatsAppUrl({
-              origin: "Início > Logística nacional",
-              interest: "Entrega para minha região",
-              request: "Quero confirmar atendimento e entrega para minha cidade.",
-            })}
+            href={getWhatsAppUrl("Vocês entregam na minha cidade?")}
             variant="secondary"
             leadSource="Início > Logística nacional"
             leadStage="service"

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ProductQuote } from "@/components/catalog/ProductQuote";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { notFound } from "next/navigation";
-import { ButtonLink } from "@/components/ui/ButtonLink";
 import { StructuredData } from "@/components/ui/StructuredData";
 import { createPageMetadata } from "@/lib/metadata";
 import { getProduct, products } from "@/lib/products";
 import { salesItemPath, salesItemsOf } from "@/lib/sales-items";
 import { productEntity } from "@/lib/structured-data";
-import { absoluteUrl, getWhatsAppUrl, siteConfig } from "@/lib/site-config";
+import { absoluteUrl, siteConfig } from "@/lib/site-config";
 import "./product-page.css";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
@@ -37,19 +37,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const productUrl = absoluteUrl(`/produtos/${product.slug}`);
   const items = salesItemsOf(product.slug);
   const isMiniPilar = product.slug.startsWith("mini-pilar");
-  const whatsappRequest = product.technicalData
-    ? "Quero confirmar conexão, altura transmucosa, aplicação e disponibilidade deste produto."
-    : "Quero confirmar aplicação, compatibilidade e disponibilidade deste produto.";
-  const contactButton = (origin: string) => (
-    <ButtonLink
-      href={getWhatsAppUrl({ origin, interest: product.name, request: whatsappRequest })}
-      leadSource={origin}
-      leadStage="product"
-      leadInterest={product.name}
-    >
-      Falar sobre este produto
-    </ButtonLink>
-  );
   const productSchema = siteConfig.siteUrl
     ? [
         {
@@ -110,6 +97,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="eyebrow eyebrow--light">{product.category}</p>
             <h1>{product.name}</h1>
             <p>{product.description}</p>
+            {product.compatibility?.length ? (
+              <div className="product-compat">
+                <span>Compatível com</span>
+                <ul>{product.compatibility.map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
+            ) : null}
             <div className="product-detail__notice">
               <span aria-hidden="true" />
               {isMiniPilar
@@ -126,38 +119,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductVisual product={product} />
 
           <div className="product-detail__copy product-detail__details">
-            {product.technicalData ? (
-              <section className="product-technical" aria-labelledby="product-technical-title">
-                <div className="product-technical__heading">
-                  <div>
-                    <h2 id="product-technical-title">Medidas disponíveis</h2>
-                  </div>
-                  <span>mm</span>
-                </div>
-                <div className="product-technical__groups">
-                  {product.technicalData.groups.map((group) => (
-                    <article className="product-technical__group" key={`${group.connection}-${group.configuration}`}>
-                      <div className="product-technical__label">
-                        <strong>{group.connection}</strong>
-                        <span>{group.configuration}</span>
-                      </div>
-                      {group.heights?.length ? (
-                        <ul aria-label={`Alturas disponíveis para ${group.connection}`}>
-                          {group.heights.map((height) => (
-                            <li key={height}><strong>{height}</strong><span>mm</span></li>
-                          ))}
-                        </ul>
-                      ) : null}
-                      {group.note ? <p>{group.note}</p> : null}
-                    </article>
-                  ))}
-                </div>
-                <p className="product-technical__note">
-                  <span aria-hidden="true">i</span>
-                  Alturas em mm. Confirmamos medida e disponibilidade antes do envio.
-                </p>
-              </section>
-            ) : null}
             {product.characteristics?.length ? (
               <div className="product-detail__list"><h2>Características disponíveis</h2><ul>{product.characteristics.map((item) => <li key={item}>{item}</li>)}</ul></div>
             ) : null}
@@ -167,14 +128,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {items.length ? (
               <div className="product-detail__list"><h2>Pedir por medida</h2><ul>{items.map((item) => <li key={item.id}><Link href={salesItemPath(item)}>{item.title}</Link></li>)}</ul></div>
             ) : null}
-            <div className="product-detail__actions">
-              {contactButton(`Página de produto > ${product.name}`)}
-              <ButtonLink href="/produtos" variant="secondary">Voltar ao catálogo</ButtonLink>
-            </div>
+            <ProductQuote product={product} />
           </div>
         </div>
       </section>
-      <div className="product-detail__sticky">{contactButton(`Página de produto > ${product.name} > Barra fixa`)}</div>
     </>
   );
 }

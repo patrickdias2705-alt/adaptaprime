@@ -24,11 +24,7 @@ export function FinalCta() {
           <p>Fale com nossa equipe e encontre a solução adequada para sua rotina.</p>
           <div className="final-cta__actions">
             <ButtonLink
-              href={getWhatsAppUrl({
-                origin,
-                interest: "Orientação comercial",
-                request: "Quero explicar o que procuro e receber orientação da equipe.",
-              })}
+              href={getWhatsAppUrl("Quero ajuda para escolher os produtos certos.")}
               leadSource={origin}
               leadStage="discovery"
               leadInterest="Orientação comercial"
