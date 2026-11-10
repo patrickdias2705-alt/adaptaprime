@@ -131,12 +131,14 @@ test("renders catalog and product detail routes", async () => {
   assert.match(html, /Medidas disponíveis/i);
   assert.match(html, /Cone Morse \(CM\)/i);
   assert.match(html, /0,8[\s\S]{0,80}1,5[\s\S]{0,80}2,5[\s\S]{0,80}3,5[\s\S]{0,80}4,5[\s\S]{0,80}5,5/i);
-  assert.match(html, /Falar sobre este produto/i);
+  assert.match(html, /Cotar no WhatsApp/i);
+  assert.match(html, /Compatível com/i);
+  assert.match(html, /aria-pressed="false"/i, "medidas são botões de escolha");
   assert.doesNotMatch(html, /R\$|Adicionar ao carrinho|Comprar agora/i);
   assert.match(html, /Envio para todo o Brasil/i);
   assert.match(html, /compatíveis com implantes Neodent/i);
   assert.ok(html.indexOf("<h1") < html.indexOf("product-detail__visual"), "nome do produto vem antes do 3D");
-  assert.match(html, /product-detail__sticky[\s\S]{0,300}data-whatsapp-cta="true"/i);
+  assert.match(html, /product-detail__sticky[\s\S]{0,1500}data-whatsapp-cta="true"/i);
 
   const heProduct = await render("/produtos/mini-pilar-he");
   assert.equal(heProduct.status, 200);

@@ -199,28 +199,23 @@ export function Header() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: reduceMotion ? 0.01 : 0.2 }}
+                  transition={{ duration: reduceMotion ? 0.01 : 0.18 }}
                 >
-                  <motion.button
+                  <button
                     type="button"
                     className="mobile-menu__scrim"
                     aria-label="Fechar menu"
                     tabIndex={-1}
                     onClick={() => closeMenu()}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: reduceMotion ? 0.01 : 0.2 }}
                   />
 
+                  {/* Only transform animates: stays on the GPU compositor on low-end phones. */}
                   <motion.aside
                     className="mobile-menu__panel"
-                    initial={{ x: "105%", opacity: 0.72, scaleX: 0.94 }}
-                    animate={{ x: 0, opacity: 1, scaleX: 1 }}
-                    exit={{ x: "105%", opacity: 0, scaleX: 0.97 }}
-                    transition={reduceMotion
-                      ? { duration: 0.01 }
-                      : { type: "spring", stiffness: 310, damping: 34, mass: 0.86 }}
+                    initial={{ x: "100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "100%" }}
+                    transition={{ duration: reduceMotion ? 0.01 : 0.26, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="mobile-menu__liquid" aria-hidden="true" />
                     <div className="mobile-menu__heading">
@@ -244,11 +239,11 @@ export function Header() {
                         return (
                           <motion.div
                             key={item.label}
-                            initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
+                            initial={{ opacity: 0, x: reduceMotion ? 0 : 14 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{
-                              delay: reduceMotion ? 0 : 0.08 + index * 0.045,
-                              duration: reduceMotion ? 0.01 : 0.24,
+                              delay: reduceMotion ? 0 : 0.06 + index * 0.03,
+                              duration: reduceMotion ? 0.01 : 0.2,
                               ease: [0.22, 1, 0.36, 1],
                             }}
                           >

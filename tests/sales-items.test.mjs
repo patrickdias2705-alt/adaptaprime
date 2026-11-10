@@ -106,3 +106,18 @@ test("product and category content stays above the fixed background wave", () =>
     assert.match(rule, /z-index: 1/, selector);
   }
 });
+
+test("the quote names the measure the dentist picked, so sales can answer without asking again", () => {
+  const { quoteInterest, getProduct } = loadHelper("lib/products.ts");
+  const cm = getProduct("mini-pilar-cm");
+  assert.equal(quoteInterest(cm.name), "Mini Pilar CM");
+  assert.equal(
+    quoteInterest(cm.name, cm.technicalData.groups[0], "2,5"),
+    "Mini Pilar CM — CM · Reto · plataforma protética Ø 4,8 mm · altura 2,5 mm",
+  );
+  const straumann = getProduct("mini-pilar-angulado").technicalData.groups.find(group => !group.heights);
+  assert.equal(
+    quoteInterest("Mini Pilar Angulado", straumann),
+    "Mini Pilar Angulado — Straumann · Seleção por plataforma NC, RC, RB ou WB",
+  );
+});

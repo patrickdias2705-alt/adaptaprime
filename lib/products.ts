@@ -22,6 +22,8 @@ export type Product = {
   model3d?: string;
   modelVariant?: "reto" | "angulado" | "limas";
   featured?: boolean;
+  /** Connections/systems the site already states; shown as chips near the title. */
+  compatibility?: string[];
   characteristics?: string[];
   applications?: string[];
   technicalData?: ProductTechnicalData;
@@ -31,6 +33,7 @@ export const products: Product[] = [
   {
     name: "Mini Pilar CM",
     slug: "mini-pilar-cm",
+    compatibility: ["Cone Morse (CM)"],
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
     image: "/products/featured/mini-pilar-reto.webp",
@@ -53,6 +56,7 @@ export const products: Product[] = [
   {
     name: "Mini Pilar HE",
     slug: "mini-pilar-he",
+    compatibility: ["Hexágono externo (HE)"],
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
     image: "/products/featured/mini-pilar-he-reto.webp",
@@ -83,6 +87,7 @@ export const products: Product[] = [
   {
     name: "Mini Pilar Angulado",
     slug: "mini-pilar-angulado",
+    compatibility: ["CM", "HE", "GM", "Straumann"],
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
     image: "/products/featured/mini-pilar-angulado-corrigido.webp",
@@ -125,6 +130,7 @@ export const products: Product[] = [
   {
     name: "Implantes CM e HE",
     slug: "implantes-cm-he",
+    compatibility: ["Cone Morse (CM)", "Hexágono externo (HE)"],
     category: "Implantodontia",
     categorySlug: "implantodontia",
     visualLabel: "Singular e Systhex",
@@ -137,6 +143,7 @@ export const products: Product[] = [
   {
     name: "T-Base CM 11,5° + Parafuso CM",
     slug: "t-base-cm-11-5-parafuso-cm",
+    compatibility: ["Cone Morse (CM) 11,5°"],
     category: "Componentes protéticos",
     categorySlug: "componentes-proteticos",
     image: "/products/featured/t-base-cone-morse-11-5.png",
@@ -173,4 +180,10 @@ export const products: Product[] = [
 
 export function getProduct(slug: string) {
   return products.find((product) => product.slug === slug);
+}
+
+export function quoteInterest(productName: string, group?: ProductTechnicalGroup, height?: string) {
+  if (!group) return productName;
+  const measure = [group.connection, group.configuration, height ? `altura ${height} mm` : null];
+  return `${productName} — ${measure.filter(Boolean).join(" · ")}`;
 }
