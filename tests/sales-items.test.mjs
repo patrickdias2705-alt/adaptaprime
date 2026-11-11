@@ -92,6 +92,19 @@ test("WhatsApp opens with one human sentence: came from the site and what they w
   assert.doesNotMatch(text(getWhatsAppUrl("quero um orçamento de Mini Pilar CM")), /Origem|Interesse|Google|\[|\n/);
 });
 
+test("visitors from Google Ads say so in the WhatsApp sentence", () => {
+  const { getWhatsAppUrl, cameFromGoogleAds, markGoogleOrigin } = loadHelper("lib/site-config.ts");
+  const text = href => new URL(href).searchParams.get("text");
+  assert.equal(cameFromGoogleAds("?gclid=abc"), true);
+  assert.equal(cameFromGoogleAds("?utm_source=google&utm_medium=cpc"), true);
+  assert.equal(cameFromGoogleAds("?utm_source=google&utm_medium=organic"), false);
+  assert.equal(cameFromGoogleAds(""), false);
+  const marked = markGoogleOrigin(getWhatsAppUrl("quero um orçamento de Mini Pilar CM"));
+  assert.equal(text(marked), "Olá! Vim pelo Google e quero um orçamento de Mini Pilar CM.");
+  assert.equal(markGoogleOrigin(marked), marked);
+  assert.equal(new URL(marked).pathname, new URL(getWhatsAppUrl()).pathname);
+});
+
 test("product and category content stays above the fixed background wave", () => {
   const css = readFileSync(resolve(root, "app/globals.css"), "utf8");
   for (const selector of [".product-detail", ".page-hero"]) {

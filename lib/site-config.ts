@@ -53,6 +53,23 @@ export function getWhatsAppUrl(request = "quero falar com um especialista") {
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
+const SITE_OPENING = "Olá! Vim pelo site";
+
+// Reads only the landing URL; the result changes only the visitor's own WhatsApp text, nothing reaches Analytics or Ads.
+export function cameFromGoogleAds(search: string) {
+  const query = new URLSearchParams(search);
+  return ["gclid", "gbraid", "wbraid"].some(key => query.has(key)) ||
+    (query.get("utm_source") === "google" && query.get("utm_medium") === "cpc");
+}
+
+// "Vim pelo Google" lets the sales team count ad leads straight from WhatsApp.
+export function markGoogleOrigin(whatsappHref: string) {
+  const url = new URL(whatsappHref);
+  const text = url.searchParams.get("text");
+  if (!text?.startsWith(SITE_OPENING)) return whatsappHref;
+  return `${url.origin}${url.pathname}?text=${encodeURIComponent(`Olá! Vim pelo Google${text.slice(SITE_OPENING.length)}`)}`;
+}
+
 export function getLeadPageLabel(pathname: string) {
   if (pathname === "/") return "Início";
   if (pathname === "/produtos") return "Catálogo de produtos";
