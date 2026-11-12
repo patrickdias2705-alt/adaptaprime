@@ -65,7 +65,7 @@ function angled(connection: "CM" | "GM" | "HE", degrees: 17 | 30, height: number
 
 function specs(): SalesItemSpec[] {
   const list: SalesItemSpec[] = [];
-  for (const [platform, heights] of [[3.3, [1, 2, 3]], [4.1, [1, 2, 3, 4, 5]], [5, [1, 2, 3]]] as const) {
+  for (const [platform, heights] of [[3.3, [1, 2, 3]], [4.1, [1, 2, 3, 4, 5]]] as const) {
     for (const height of heights) list.push(straightHe(platform, height));
   }
   for (const height of [0.8, 1.5, 2.5, 3.5, 4.5, 5.5]) list.push(straightCm(height));
@@ -76,8 +76,6 @@ function specs(): SalesItemSpec[] {
   }
   for (const platform of [3.3, 4.1]) {
     for (const height of [2, 3, 4]) list.push(angled("HE", 17, height, platform));
-  }
-  for (const platform of [4.1, 5]) {
     for (const height of [3, 4]) list.push(angled("HE", 30, height, platform));
   }
   list.push({

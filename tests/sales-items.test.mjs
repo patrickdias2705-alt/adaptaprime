@@ -29,15 +29,17 @@ const offer = { priceBRL: 99.9, availability: "in_stock", brand: "Marca de teste
 
 test("the catalog of items matches the price sheet and has unique ids and URLs", () => {
   const { salesItemSpecs } = loadHelper("lib/sales-items.ts");
-  assert.equal(salesItemSpecs.length, 40);
-  assert.equal(new Set(salesItemSpecs.map(spec => spec.id)).size, 40);
-  assert.equal(new Set(salesItemSpecs.map(spec => `${spec.productSlug}/${spec.slug}`)).size, 40);
-  for (const id of ["MPHE-33-10", "MPHE-41-30", "MPHE-50-30", "MPCM-48-08", "MPCM-48-55", "MPAN-CM-17-15", "MPAN-GM-30-35", "MPAN-HE-33-17-20", "MPAN-HE-50-30-40", "KIT-EXTRATOR"]) {
+  assert.equal(salesItemSpecs.length, 37);
+  assert.equal(new Set(salesItemSpecs.map(spec => spec.id)).size, 37);
+  assert.equal(new Set(salesItemSpecs.map(spec => `${spec.productSlug}/${spec.slug}`)).size, 37);
+  for (const id of ["MPHE-33-10", "MPHE-41-30", "MPHE-33-30", "MPCM-48-08", "MPCM-48-55", "MPAN-CM-17-15", "MPAN-GM-30-35", "MPAN-HE-33-17-20", "MPAN-HE-33-30-40", "KIT-EXTRATOR"]) {
     assert.ok(salesItemSpecs.some(spec => spec.id === id), id);
   }
-  const he = salesItemSpecs.find(spec => spec.id === "MPHE-50-30");
-  assert.equal(he.title, "Mini Pilar Cônico Reto HE Ø 5,0 - Altura 3 mm");
-  assert.equal(he.slug, "he-5-altura-3-mm");
+  const he = salesItemSpecs.find(spec => spec.id === "MPHE-33-30");
+  assert.equal(he.title, "Mini Pilar Cônico Reto HE Ø 3,3 - Altura 3 mm");
+  assert.equal(he.slug, "he-3-3-altura-3-mm");
+  // Adapta has no Ø 5,0 platform in any product.
+  assert.ok(salesItemSpecs.every(spec => !/5,0/.test(spec.title)));
   for (const spec of salesItemSpecs) assert.ok(spec.title.length <= 150, spec.id);
 });
 

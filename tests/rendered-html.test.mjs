@@ -147,13 +147,15 @@ test("renders catalog and product detail routes", async () => {
   assert.doesNotMatch(heHtml, /\/models\/mini-pilar-reto-fast\.glb/i);
   assert.match(heHtml, /HE Ø 3,3/i);
   assert.match(heHtml, /HE SF Ø 4,1/i);
-  assert.match(heHtml, /HE SF Ø 5,0/i);
+  assert.doesNotMatch(heHtml, /5,0/);
 
   const angledProduct = await render("/produtos/mini-pilar-angulado");
   assert.equal(angledProduct.status, 200);
   const angledHtml = await angledProduct.text();
   assert.match(angledHtml, /17° ou 30°/i);
   assert.match(angledHtml, /Seleção por plataforma NC, RC, RB ou WB/i);
+  assert.match(angledHtml, /30° · Ø 3,3 \/ Ø 4,1/);
+  assert.doesNotMatch(angledHtml, /5,0/);
 
   const tBaseHtml = await (await render("/produtos/t-base-cm-11-5-parafuso-cm")).text();
   assert.match(tBaseHtml, /\/products\/featured\/t-base-cone-morse-11-5\.png/i);

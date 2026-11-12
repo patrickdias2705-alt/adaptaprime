@@ -61,7 +61,7 @@ export const products: Product[] = [
     categorySlug: "componentes-proteticos",
     image: "/products/featured/mini-pilar-he-reto.webp",
     description:
-      "Mini pilar reto para hexágono externo (HE). Plataformas de 3,3, 4,1 e 5,0 mm.",
+      "Mini pilar reto para hexágono externo (HE). Plataformas de 3,3 e 4,1 mm.",
     technicalData: {
       summary: "Alturas organizadas por plataforma HE",
       groups: [
@@ -74,11 +74,6 @@ export const products: Product[] = [
           connection: "HE SF Ø 4,1",
           configuration: "Mini pilar cônico reto",
           heights: ["1", "2", "3", "4", "5"],
-        },
-        {
-          connection: "HE SF Ø 5,0",
-          configuration: "Mini pilar cônico reto",
-          heights: ["1", "2", "3"],
         },
       ],
     },
@@ -110,7 +105,7 @@ export const products: Product[] = [
         },
         {
           connection: "HE",
-          configuration: "30° · Ø 4,1 / Ø 5,0",
+          configuration: "30° · Ø 3,3 / Ø 4,1",
           heights: ["3", "4"],
         },
         {
