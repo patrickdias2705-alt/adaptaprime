@@ -121,8 +121,8 @@ test("product and category content stays above the fixed background wave", () =>
 test("the quote names the measure the dentist picked, so sales can answer without asking again", () => {
   const { quoteInterest, getProduct } = loadHelper("lib/products.ts");
   const cm = getProduct("mini-pilar-cm");
-  assert.equal(quoteInterest(cm), "Mini Pilar CM");
-  assert.equal(quoteInterest(cm, cm.technicalData.groups[0], "2,5"), "Mini Pilar CM (altura 2,5 mm)");
+  assert.equal(quoteInterest(cm), "Mini Pilar CM (Cone Morse)");
+  assert.equal(quoteInterest(cm, cm.technicalData.groups[0], "2,5"), "Mini Pilar CM (Cone Morse) (altura 2,5 mm)");
   const he = getProduct("mini-pilar-he");
   assert.equal(quoteInterest(he, he.technicalData.groups[1], "2"), "Mini Pilar HE (HE SF Ø 4,1, altura 2 mm)");
   const angled = getProduct("mini-pilar-angulado");

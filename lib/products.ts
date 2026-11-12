@@ -31,7 +31,7 @@ export type Product = {
 
 export const products: Product[] = [
   {
-    name: "Mini Pilar CM",
+    name: "Mini Pilar CM (Cone Morse)",
     slug: "mini-pilar-cm",
     compatibility: ["Cone Morse (CM)"],
     category: "Componentes protéticos",
